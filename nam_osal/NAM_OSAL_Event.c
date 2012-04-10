@@ -181,9 +181,9 @@ OMX_ERRORTYPE NAM_OSAL_SignalWait(OMX_HANDLETYPE eventHandle, OMX_U32 ms)
 
     gettimeofday(&now, NULL);
 
-    tv_us = now.tv_unam + ms * 1000;
-    timeout.tv_nam = now.tv_nam + tv_us / 1000000;
-    timeout.tv_nnam = (tv_us % 1000000) * 1000;
+    tv_us = now.tv_usec + ms * 1000;
+    timeout.tv_sec = now.tv_sec + tv_us / 1000000;
+    timeout.tv_nsec = (tv_us % 1000000) * 1000;
 
     ret = NAM_OSAL_MutexLock(event->mutex);
     if (ret != OMX_ErrorNone) {

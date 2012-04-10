@@ -43,8 +43,8 @@
 #define DEFAULT_VIDEO_INPUT_BUFFER_SIZE    ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT) * 2)
 #define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT * 3) / 2)
 
-#define MFC_INPUT_BUFFER_NUM_MAX         2
-#define DEFAULT_MFC_INPUT_BUFFER_SIZE    ((1280 * 720 * 3) / 2)
+#define DMAI_INPUT_BUFFER_NUM_MAX         2
+#define DEFAULT_DMAI_INPUT_BUFFER_SIZE    ((1280 * 720 * 3) / 2)
 
 #define INPUT_PORT_SUPPORTFORMAT_NUM_MAX    1
 #define OUTPUT_PORT_SUPPORTFORMAT_NUM_MAX   3
@@ -57,9 +57,9 @@ typedef struct
 {
     void *pAddrY;
     void *pAddrC;
-} MFC_DEC_ADDR_INFO;
+} DMAI_DEC_ADDR_INFO;
 
-typedef struct _NAM_MFC_NBDEC_THREAD
+typedef struct _NAM_DMAI_NBDEC_THREAD
 {
     OMX_HANDLETYPE  hNBDecodeThread;
     OMX_HANDLETYPE  hDecFrameStart;
@@ -68,15 +68,15 @@ typedef struct _NAM_MFC_NBDEC_THREAD
     OMX_BOOL        bDecoderRun;
 
     OMX_U32         oneFrameSize;
-} NAM_MFC_NBDEC_THREAD;
+} NAM_DMAI_NBDEC_THREAD;
 
-typedef struct _MFC_DEC_INPUT_BUFFER
+typedef struct _DMAI_DEC_INPUT_BUFFER
 {
     void *PhyAddr;      // physical address
     void *VirAddr;      // virtual address
     int   bufferSize;   // input buffer alloc size
     int   dataSize;     // Data length
-} MFC_DEC_INPUT_BUFFER;
+} DMAI_DEC_INPUT_BUFFER;
 
 #ifdef __cplusplus
 extern "C" {

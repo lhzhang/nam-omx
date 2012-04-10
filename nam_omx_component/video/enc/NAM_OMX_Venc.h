@@ -44,7 +44,7 @@
                                            /* (DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT * 3) / 2 */
 #define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   DEFAULT_VIDEO_INPUT_BUFFER_SIZE
 
-#define MFC_INPUT_BUFFER_NUM_MAX            2
+#define DMAI_INPUT_BUFFER_NUM_MAX            2
 
 #ifdef USE_ANDROID_EXTENSION
 #define INPUT_PORT_SUPPORTFORMAT_NUM_MAX    4
@@ -63,18 +63,18 @@ typedef struct
 {
     void *pAddrY;
     void *pAddrC;
-} MFC_ENC_ADDR_INFO;
+} DMAI_ENC_ADDR_INFO;
 
-typedef struct _NAM_MFC_NBENC_THREAD
+typedef struct _NAM_DMAI_NBENC_THREAD
 {
     OMX_HANDLETYPE  hNBEncodeThread;
     OMX_HANDLETYPE  hEncFrameStart;
     OMX_HANDLETYPE  hEncFrameEnd;
     OMX_BOOL        bExitEncodeThread;
     OMX_BOOL        bEncoderRun;
-} NAM_MFC_NBENC_THREAD;
+} NAM_DMAI_NBENC_THREAD;
 
-typedef struct _MFC_ENC_INPUT_BUFFER
+typedef struct _DMAI_ENC_INPUT_BUFFER
 {
     void *YPhyAddr; // physical address of Y
     void *CPhyAddr; // physical address of CbCr
@@ -84,7 +84,7 @@ typedef struct _MFC_ENC_INPUT_BUFFER
     int CBufferSize; // input buffer alloc size of CbCr
     int YDataSize;  // input size of Y data
     int CDataSize;  // input size of CbCr data
-} MFC_ENC_INPUT_BUFFER;
+} DMAI_ENC_INPUT_BUFFER;
 
 #ifdef __cplusplus
 extern "C" {

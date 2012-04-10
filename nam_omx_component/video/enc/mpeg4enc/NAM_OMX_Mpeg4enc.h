@@ -29,7 +29,7 @@
 
 #include "NAM_OMX_Def.h"
 #include "OMX_Component.h"
-#include "SsbSipMfcApi.h"
+#include "SsbSipDmaiApi.h"
 
 
 typedef enum _CODEC_TYPE
@@ -38,17 +38,17 @@ typedef enum _CODEC_TYPE
     CODEC_TYPE_MPEG4
 } CODEC_TYPE;
 
-typedef struct _NAM_MFC_MPEG4ENC_HANDLE
+typedef struct _NAM_DMAI_MPEG4ENC_HANDLE
 {
-    OMX_HANDLETYPE             hMFCHandle;
-    SSBSIP_MFC_ENC_MPEG4_PARAM mpeg4MFCParam;
-    SSBSIP_MFC_ENC_H263_PARAM  h263MFCParam;
-    SSBSIP_MFC_ENC_INPUT_INFO  inputInfo;
+    OMX_HANDLETYPE             hDMAIHandle;
+    SSBSIP_DMAI_ENC_MPEG4_PARAM mpeg4DMAIParam;
+    SSBSIP_DMAI_ENC_H263_PARAM  h263DMAIParam;
+    SSBSIP_DMAI_ENC_INPUT_INFO  inputInfo;
     OMX_U32                    indexTimestamp;
-    OMX_BOOL                   bConfiguredMFC;
+    OMX_BOOL                   bConfiguredDMAI;
     CODEC_TYPE                 codecType;
     OMX_S32                    returnCodec;
-} NAM_MFC_MPEG4ENC_HANDLE;
+} NAM_DMAI_MPEG4ENC_HANDLE;
 
 typedef struct _NAM_MPEG4ENC_HANDLE
 {
@@ -57,13 +57,13 @@ typedef struct _NAM_MPEG4ENC_HANDLE
     OMX_VIDEO_PARAM_MPEG4TYPE mpeg4Component[ALL_PORT_NUM];
     OMX_VIDEO_PARAM_ERRORCORRECTIONTYPE errorCorrectionType[ALL_PORT_NUM];
 
-    /* NAM MFC Codec specific */
-    NAM_MFC_MPEG4ENC_HANDLE   hMFCMpeg4Handle;
+    /* NAM DMAI Codec specific */
+    NAM_DMAI_MPEG4ENC_HANDLE   hDMAIMpeg4Handle;
 
     /* For Non-Block mode */
-    NAM_MFC_NBENC_THREAD NBEncThread;
+    NAM_DMAI_NBENC_THREAD NBEncThread;
     OMX_BOOL bFirstFrame;
-    MFC_ENC_INPUT_BUFFER MFCEncInputBuffer[MFC_INPUT_BUFFER_NUM_MAX];
+    DMAI_ENC_INPUT_BUFFER DMAIEncInputBuffer[DMAI_INPUT_BUFFER_NUM_MAX];
     OMX_U32  indexInputBuffer;
 } NAM_MPEG4ENC_HANDLE;
 

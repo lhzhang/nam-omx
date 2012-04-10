@@ -32,16 +32,16 @@
 #include "OMX_Video.h"
 
 
-typedef struct _NAM_MFC_H264DEC_HANDLE
+typedef struct _NAM_DMAI_H264DEC_HANDLE
 {
-    OMX_HANDLETYPE hMFCHandle;
-    OMX_PTR pMFCStreamBuffer;
-    OMX_PTR pMFCStreamPhyBuffer;
+    OMX_HANDLETYPE hDMAIHandle;
+    OMX_PTR pDMAIStreamBuffer;
+    OMX_PTR pDMAIStreamPhyBuffer;
     OMX_U32    indexTimestamp;
-    OMX_BOOL bConfiguredMFC;
+    OMX_BOOL bConfiguredDMAI;
     OMX_BOOL bThumbnailMode;
     OMX_S32  returnCodec;
-} NAM_MFC_H264DEC_HANDLE;
+} NAM_DMAI_H264DEC_HANDLE;
 
 typedef struct _NAM_H264DEC_HANDLE
 {
@@ -49,13 +49,13 @@ typedef struct _NAM_H264DEC_HANDLE
     OMX_VIDEO_PARAM_AVCTYPE AVCComponent[ALL_PORT_NUM];
     OMX_VIDEO_PARAM_ERRORCORRECTIONTYPE errorCorrectionType[ALL_PORT_NUM];
 
-    /* NAM MFC Codec specific */
-    NAM_MFC_H264DEC_HANDLE hMFCH264Handle;
+    /* NAM DMAI Codec specific */
+    NAM_DMAI_H264DEC_HANDLE hDMAIH264Handle;
 
     /* For Non-Block mode */
-    NAM_MFC_NBDEC_THREAD NBDecThread;
+    NAM_DMAI_NBDEC_THREAD NBDecThread;
     OMX_BOOL bFirstFrame;
-    MFC_DEC_INPUT_BUFFER MFCDecInputBuffer[MFC_INPUT_BUFFER_NUM_MAX];
+    DMAI_DEC_INPUT_BUFFER DMAIDecInputBuffer[DMAI_INPUT_BUFFER_NUM_MAX];
     OMX_U32  indexInputBuffer;
 } NAM_H264DEC_HANDLE;
 

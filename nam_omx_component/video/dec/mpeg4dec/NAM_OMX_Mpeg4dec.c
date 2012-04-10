@@ -34,7 +34,7 @@
 #include "NAM_OMX_Vdec.h"
 #include "library_register.h"
 #include "NAM_OMX_Mpeg4dec.h"
-#include "SsbSipMfcApi.h"
+#include "SsbSipDmaiApi.h"
 #include "color_space_convertor.h"
 
 #undef  NAM_LOG_TAG
@@ -102,7 +102,7 @@ NAM_OMX_VIDEO_PROFILELEVEL supportedH263ProfileLevels[] = {
     {OMX_VIDEO_H263ProfileISWV2, OMX_VIDEO_H263Level60},
     {OMX_VIDEO_H263ProfileISWV2, OMX_VIDEO_H263Level70}};
 
-static OMX_HANDLETYPE ghMFCHandle = NULL;
+static OMX_HANDLETYPE ghDMAIHandle = NULL;
 static OMX_BOOL gbFIMV1 = OMX_FALSE;
 
 static int Check_Mpeg4_Frame(OMX_U8 *pInputStream, OMX_U32 buffSize, OMX_U32 flag, OMX_BOOL bPreviousFrameEOF, OMX_BOOL *pbEndOfFrame)
@@ -116,14 +116,14 @@ static int Check_Mpeg4_Frame(OMX_U8 *pInputStream, OMX_U32 buffSize, OMX_U32 fla
 
     if (flag & OMX_BUFFERFLAG_CODECCONFIG) {
         if (*pInputStream == 0x03) { /* FIMV1 */
-            if (ghMFCHandle != NULL) {
+            if (ghDMAIHandle != NULL) {
                 BitmapInfoHhr *pInfoHeader;
-                SSBSIP_MFC_IMG_RESOLUTION imgResolution;
+                SSBSIP_DMAI_IMG_RESOLUTION imgResolution;
 
                 pInfoHeader = (BitmapInfoHhr *)(pInputStream + 1);
                 imgResolution.width = pInfoHeader->BiWidth;
                 imgResolution.height = pInfoHeader->BiHeight;
-                SsbSipMfcDecSetConfig(ghMFCHandle, MFC_DEC_SETCONF_FIMV1_WIDTH_HEIGHT, &imgResolution);
+                SsbSipDmaiDecSetConfig(ghDMAIHandle, DMAI_DEC_SETCONF_FIMV1_WIDTH_HEIGHT, &imgResolution);
 
                 NAM_OSAL_Log(NAM_LOG_TRACE, "width(%d), height(%d)", imgResolution.width, imgResolution.height);
                 gbFIMV1 = OMX_TRUE;
@@ -266,7 +266,7 @@ OMX_BOOL Check_Stream_PrefixCode(OMX_U8 *pInputStream, OMX_U32 streamSize, CODEC
     }
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_GetParameter(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_GetParameter(
     OMX_IN    OMX_HANDLETYPE hComponent,
     OMX_IN    OMX_INDEXTYPE  nParamIndex,
     OMX_INOUT OMX_PTR        pComponentParameterStructure)
@@ -350,7 +350,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_GetParameter(
             goto EXIT;
         }
 
-        codecType = ((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType;
+        codecType = ((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4)
             NAM_OSAL_Strcpy((char *)pComponentRole->cRole, NAM_OMX_COMPONENT_MPEG4_DEC_ROLE);
         else
@@ -374,7 +374,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_GetParameter(
             goto EXIT;
         }
 
-        codecType = ((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType;
+        codecType = ((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4) {
             pProfileLevel = supportedMPEG4ProfileLevels;
             maxProfileLevelNum = sizeof(supportedMPEG4ProfileLevels) / sizeof(NAM_OMX_VIDEO_PROFILELEVEL);
@@ -412,7 +412,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_GetParameter(
         }
 
         pMpeg4Dec = (NAM_MPEG4_HANDLE *)pNAMComponent->hCodecHandle;
-        codecType = pMpeg4Dec->hMFCMpeg4Handle.codecType;
+        codecType = pMpeg4Dec->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4) {
             pSrcMpeg4Param = &pMpeg4Dec->mpeg4Component[pDstProfileLevel->nPortIndex];
             pDstProfileLevel->eProfile = pSrcMpeg4Param->eProfile;
@@ -460,7 +460,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_SetParameter(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_SetParameter(
     OMX_IN OMX_HANDLETYPE hComponent,
     OMX_IN OMX_INDEXTYPE  nIndex,
     OMX_IN OMX_PTR        pComponentParameterStructure)
@@ -552,10 +552,10 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_SetParameter(
 
         if (!NAM_OSAL_Strcmp((char*)pComponentRole->cRole, NAM_OMX_COMPONENT_MPEG4_DEC_ROLE)) {
             pNAMComponent->pNAMPort[INPUT_PORT_INDEX].portDefinition.format.video.eCompressionFormat = OMX_VIDEO_CodingMPEG4;
-            //((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType = CODEC_TYPE_MPEG4;
+            //((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType = CODEC_TYPE_MPEG4;
         } else if (!NAM_OSAL_Strcmp((char*)pComponentRole->cRole, NAM_OMX_COMPONENT_H263_DEC_ROLE)) {
             pNAMComponent->pNAMPort[INPUT_PORT_INDEX].portDefinition.format.video.eCompressionFormat = OMX_VIDEO_CodingH263;
-            //((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType = CODEC_TYPE_H263;
+            //((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType = CODEC_TYPE_H263;
         } else {
             ret = OMX_ErrorBadParameter;
             goto EXIT;
@@ -640,7 +640,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_SetParameter(
         }
 
         pMpeg4Dec = (NAM_MPEG4_HANDLE *)pNAMComponent->hCodecHandle;
-        codecType = pMpeg4Dec->hMFCMpeg4Handle.codecType;
+        codecType = pMpeg4Dec->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4) {
             /*
              * To do: Check validity of profile & level parameters
@@ -696,7 +696,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_GetConfig(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_GetConfig(
     OMX_HANDLETYPE hComponent,
     OMX_INDEXTYPE nIndex,
     OMX_PTR pComponentConfigStructure)
@@ -744,7 +744,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_SetConfig(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_SetConfig(
     OMX_IN OMX_HANDLETYPE hComponent,
     OMX_IN OMX_INDEXTYPE  nIndex,
     OMX_IN OMX_PTR        pComponentConfigStructure)
@@ -780,7 +780,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_SetConfig(
     {
         NAM_MPEG4_HANDLE  *pMpeg4Dec = (NAM_MPEG4_HANDLE *)pNAMComponent->hCodecHandle;
 
-        pMpeg4Dec->hMFCMpeg4Handle.bThumbnailMode = *((OMX_BOOL *)pComponentConfigStructure);
+        pMpeg4Dec->hDMAIMpeg4Handle.bThumbnailMode = *((OMX_BOOL *)pComponentConfigStructure);
     }
         break;
     default:
@@ -794,7 +794,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_GetExtensionIndex(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_GetExtensionIndex(
     OMX_IN OMX_HANDLETYPE  hComponent,
     OMX_IN OMX_STRING      cParameterName,
     OMX_OUT OMX_INDEXTYPE *pIndexType)
@@ -855,7 +855,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_ComponentRoleEnum(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_ComponentRoleEnum(
     OMX_IN  OMX_HANDLETYPE hComponent,
     OMX_OUT OMX_U8        *cRole,
     OMX_IN  OMX_U32        nIndex)
@@ -891,7 +891,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_ComponentRoleEnum(
         goto EXIT;
     }
 
-    codecType = ((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType;
+    codecType = ((NAM_MPEG4_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType;
     if (codecType == CODEC_TYPE_MPEG4)
         NAM_OSAL_Strcpy((char *)cRole, NAM_OMX_COMPONENT_MPEG4_DEC_ROLE);
     else
@@ -903,7 +903,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_DecodeThread(OMX_HANDLETYPE hComponent)
+OMX_ERRORTYPE NAM_DMAI_DecodeThread(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
@@ -924,7 +924,7 @@ OMX_ERRORTYPE NAM_MFC_DecodeThread(OMX_HANDLETYPE hComponent)
         NAM_OSAL_SemaphoreWait(pMpeg4Dec->NBDecThread.hDecFrameStart);
 
         if (pMpeg4Dec->NBDecThread.bExitDecodeThread == OMX_FALSE) {
-            pMpeg4Dec->hMFCMpeg4Handle.returnCodec = SsbSipMfcDecExe(pMpeg4Dec->hMFCMpeg4Handle.hMFCHandle, pMpeg4Dec->NBDecThread.oneFrameSize);
+            pMpeg4Dec->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiDecExe(pMpeg4Dec->hDMAIMpeg4Handle.hDMAIHandle, pMpeg4Dec->NBDecThread.oneFrameSize);
             NAM_OSAL_SemaphorePost(pMpeg4Dec->NBDecThread.hDecFrameEnd);
         }
     }
@@ -936,47 +936,47 @@ EXIT:
     return ret;
 }
 
-/* MFC Init */
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
+/* DMAI Init */
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4_HANDLE      *pMpeg4Dec = NULL;
-    OMX_HANDLETYPE         hMFCHandle = NULL;
+    OMX_HANDLETYPE         hDMAIHandle = NULL;
     OMX_PTR                pStreamBuffer = NULL;
     OMX_PTR                pStreamPhyBuffer = NULL;
 
     FunctionIn();
 
     pMpeg4Dec = (NAM_MPEG4_HANDLE *)pNAMComponent->hCodecHandle;
-    pMpeg4Dec->hMFCMpeg4Handle.bConfiguredMFC = OMX_FALSE;
+    pMpeg4Dec->hDMAIMpeg4Handle.bConfiguredDMAI = OMX_FALSE;
     pNAMComponent->bUseFlagEOF = OMX_FALSE;
     pNAMComponent->bSaveFlagEOS = OMX_FALSE;
 
-    /* MFC(Multi Format Codec) decoder and CMM(Codec Memory Management) driver open */
-    SSBIP_MFC_BUFFER_TYPE buf_type = CACHE;
-    hMFCHandle = (OMX_PTR)SsbSipMfcDecOpen(&buf_type);
-    if (hMFCHandle == NULL) {
+    /* DMAI(Multi Format Codec) decoder and CMM(Codec Memory Management) driver open */
+    SSBIP_DMAI_BUFFER_TYPE buf_type = CACHE;
+    hDMAIHandle = (OMX_PTR)SsbSipDmaiDecOpen(&buf_type);
+    if (hDMAIHandle == NULL) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
-    ghMFCHandle = pMpeg4Dec->hMFCMpeg4Handle.hMFCHandle = hMFCHandle;
+    ghDMAIHandle = pMpeg4Dec->hDMAIMpeg4Handle.hDMAIHandle = hDMAIHandle;
 
     /* Allocate decoder's input buffer */
-    pStreamBuffer = SsbSipMfcDecGetInBuf(hMFCHandle, &pStreamPhyBuffer, DEFAULT_MFC_INPUT_BUFFER_SIZE);
+    pStreamBuffer = SsbSipDmaiDecGetInBuf(hDMAIHandle, &pStreamPhyBuffer, DEFAULT_DMAI_INPUT_BUFFER_SIZE);
     if (pStreamBuffer == NULL) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
 
-    pMpeg4Dec->MFCDecInputBuffer[0].VirAddr = pStreamBuffer;
-    pMpeg4Dec->MFCDecInputBuffer[0].PhyAddr = pStreamPhyBuffer;
-    pMpeg4Dec->MFCDecInputBuffer[0].bufferSize = DEFAULT_MFC_INPUT_BUFFER_SIZE;
-    pMpeg4Dec->MFCDecInputBuffer[0].dataSize = 0;
-    pMpeg4Dec->MFCDecInputBuffer[1].VirAddr = (unsigned char *)pStreamBuffer + pMpeg4Dec->MFCDecInputBuffer[0].bufferSize;
-    pMpeg4Dec->MFCDecInputBuffer[1].PhyAddr = (unsigned char *)pStreamPhyBuffer + pMpeg4Dec->MFCDecInputBuffer[0].bufferSize;
-    pMpeg4Dec->MFCDecInputBuffer[1].bufferSize = DEFAULT_MFC_INPUT_BUFFER_SIZE;
-    pMpeg4Dec->MFCDecInputBuffer[1].dataSize = 0;
+    pMpeg4Dec->DMAIDecInputBuffer[0].VirAddr = pStreamBuffer;
+    pMpeg4Dec->DMAIDecInputBuffer[0].PhyAddr = pStreamPhyBuffer;
+    pMpeg4Dec->DMAIDecInputBuffer[0].bufferSize = DEFAULT_DMAI_INPUT_BUFFER_SIZE;
+    pMpeg4Dec->DMAIDecInputBuffer[0].dataSize = 0;
+    pMpeg4Dec->DMAIDecInputBuffer[1].VirAddr = (unsigned char *)pStreamBuffer + pMpeg4Dec->DMAIDecInputBuffer[0].bufferSize;
+    pMpeg4Dec->DMAIDecInputBuffer[1].PhyAddr = (unsigned char *)pStreamPhyBuffer + pMpeg4Dec->DMAIDecInputBuffer[0].bufferSize;
+    pMpeg4Dec->DMAIDecInputBuffer[1].bufferSize = DEFAULT_DMAI_INPUT_BUFFER_SIZE;
+    pMpeg4Dec->DMAIDecInputBuffer[1].dataSize = 0;
     pMpeg4Dec->indexInputBuffer = 0;
 
     pMpeg4Dec->bFirstFrame = OMX_TRUE;
@@ -987,19 +987,19 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     NAM_OSAL_SemaphoreCreate(&(pMpeg4Dec->NBDecThread.hDecFrameStart));
     NAM_OSAL_SemaphoreCreate(&(pMpeg4Dec->NBDecThread.hDecFrameEnd));
     if (OMX_ErrorNone == NAM_OSAL_ThreadCreate(&pMpeg4Dec->NBDecThread.hNBDecodeThread,
-                                                NAM_MFC_DecodeThread,
+                                                NAM_DMAI_DecodeThread,
                                                 pOMXComponent)) {
-        pMpeg4Dec->hMFCMpeg4Handle.returnCodec = MFC_RET_OK;
+        pMpeg4Dec->hDMAIMpeg4Handle.returnCodec = DMAI_RET_OK;
     }
 
-    pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamBuffer    = pMpeg4Dec->MFCDecInputBuffer[0].VirAddr;
-    pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamPhyBuffer = pMpeg4Dec->MFCDecInputBuffer[0].PhyAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pMpeg4Dec->MFCDecInputBuffer[0].VirAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = pMpeg4Dec->MFCDecInputBuffer[0].bufferSize;
+    pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamBuffer    = pMpeg4Dec->DMAIDecInputBuffer[0].VirAddr;
+    pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamPhyBuffer = pMpeg4Dec->DMAIDecInputBuffer[0].PhyAddr;
+    pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pMpeg4Dec->DMAIDecInputBuffer[0].VirAddr;
+    pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = pMpeg4Dec->DMAIDecInputBuffer[0].bufferSize;
 
     NAM_OSAL_Memset(pNAMComponent->timeStamp, -19771003, sizeof(OMX_TICKS) * MAX_TIMESTAMP);
     NAM_OSAL_Memset(pNAMComponent->nFlags, 0, sizeof(OMX_U32) * MAX_FLAGS);
-    pMpeg4Dec->hMFCMpeg4Handle.indexTimestamp = 0;
+    pMpeg4Dec->hDMAIMpeg4Handle.indexTimestamp = 0;
     pNAMComponent->getAllDelayBuffer = OMX_FALSE;
 
 EXIT:
@@ -1008,21 +1008,21 @@ EXIT:
     return ret;
 }
 
-/* MFC Terminate */
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
+/* DMAI Terminate */
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4_HANDLE      *pMpeg4Dec = NULL;
-    OMX_HANDLETYPE         hMFCHandle = NULL;
+    OMX_HANDLETYPE         hDMAIHandle = NULL;
 
     FunctionIn();
 
     pMpeg4Dec = (NAM_MPEG4_HANDLE *)pNAMComponent->hCodecHandle;
-    hMFCHandle = pMpeg4Dec->hMFCMpeg4Handle.hMFCHandle;
+    hDMAIHandle = pMpeg4Dec->hDMAIMpeg4Handle.hDMAIHandle;
 
-    pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamBuffer    = NULL;
-    pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamPhyBuffer = NULL;
+    pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamBuffer    = NULL;
+    pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamPhyBuffer = NULL;
     pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = NULL;
     pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = 0;
 
@@ -1043,9 +1043,9 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
         pMpeg4Dec->NBDecThread.hDecFrameStart = NULL;
     }
 
-    if (hMFCHandle != NULL) {
-        SsbSipMfcDecClose(hMFCHandle);
-        pMpeg4Dec->hMFCMpeg4Handle.hMFCHandle = NULL;
+    if (hDMAIHandle != NULL) {
+        SsbSipDmaiDecClose(hDMAIHandle);
+        pMpeg4Dec->hDMAIMpeg4Handle.hDMAIHandle = NULL;
     }
 
 EXIT:
@@ -1054,14 +1054,14 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
+OMX_ERRORTYPE NAM_DMAI_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4_HANDLE          *pMpeg4Dec = (NAM_MPEG4_HANDLE *)pNAMComponent->hCodecHandle;
-    OMX_HANDLETYPE             hMFCHandle = pMpeg4Dec->hMFCMpeg4Handle.hMFCHandle;
+    OMX_HANDLETYPE             hDMAIHandle = pMpeg4Dec->hDMAIMpeg4Handle.hDMAIHandle;
     OMX_U32                    oneFrameSize = pInputData->dataLen;
-    SSBSIP_MFC_DEC_OUTPUT_INFO outputInfo;
+    SSBSIP_DMAI_DEC_OUTPUT_INFO outputInfo;
     OMX_S32                    configValue = 0;
     int                        bufWidth = 0;
     int                        bufHeight = 0;
@@ -1069,15 +1069,15 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
 
     FunctionIn();
 
-    if (pMpeg4Dec->hMFCMpeg4Handle.bConfiguredMFC == OMX_FALSE) {
-        SSBSIP_MFC_CODEC_TYPE MFCCodecType;
-        if (pMpeg4Dec->hMFCMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
+    if (pMpeg4Dec->hDMAIMpeg4Handle.bConfiguredDMAI == OMX_FALSE) {
+        SSBSIP_DMAI_CODEC_TYPE DMAICodecType;
+        if (pMpeg4Dec->hDMAIMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
             if (gbFIMV1)
-                MFCCodecType = FIMV1_DEC;
+                DMAICodecType = FIMV1_DEC;
             else
-                MFCCodecType = MPEG4_DEC;
+                DMAICodecType = MPEG4_DEC;
         } else {
-            MFCCodecType = H263_DEC;
+            DMAICodecType = H263_DEC;
         }
 
         if ((oneFrameSize <= 0) && (pInputData->nFlags & OMX_BUFFERFLAG_EOS)) {
@@ -1089,25 +1089,25 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
 
         /* Set the number of extra buffer to prevent tearing */
         configValue = 0;
-        SsbSipMfcDecSetConfig(hMFCHandle, MFC_DEC_SETCONF_EXTRA_BUFFER_NUM, &configValue);
+        SsbSipDmaiDecSetConfig(hDMAIHandle, DMAI_DEC_SETCONF_EXTRA_BUFFER_NUM, &configValue);
 
         /* Set mpeg4 deblocking filter enable */
         configValue = 1;
-        SsbSipMfcDecSetConfig(hMFCHandle, MFC_DEC_SETCONF_POST_ENABLE, &configValue);
+        SsbSipDmaiDecSetConfig(hDMAIHandle, DMAI_DEC_SETCONF_POST_ENABLE, &configValue);
 
-        if (pMpeg4Dec->hMFCMpeg4Handle.bThumbnailMode == OMX_TRUE) {
+        if (pMpeg4Dec->hDMAIMpeg4Handle.bThumbnailMode == OMX_TRUE) {
             configValue = 1;    // the number that you want to delay
-            SsbSipMfcDecSetConfig(hMFCHandle, MFC_DEC_SETCONF_DISPLAY_DELAY, &configValue);
+            SsbSipDmaiDecSetConfig(hDMAIHandle, DMAI_DEC_SETCONF_DISPLAY_DELAY, &configValue);
         }
 
-        pMpeg4Dec->hMFCMpeg4Handle.returnCodec = SsbSipMfcDecInit(hMFCHandle, MFCCodecType, oneFrameSize);
-        if (pMpeg4Dec->hMFCMpeg4Handle.returnCodec == MFC_RET_OK) {
-            SSBSIP_MFC_IMG_RESOLUTION imgResol;
+        pMpeg4Dec->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiDecInit(hDMAIHandle, DMAICodecType, oneFrameSize);
+        if (pMpeg4Dec->hDMAIMpeg4Handle.returnCodec == DMAI_RET_OK) {
+            SSBSIP_DMAI_IMG_RESOLUTION imgResol;
             NAM_OMX_BASEPORT *pInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
 
-            if (SsbSipMfcDecGetConfig(hMFCHandle, MFC_DEC_GETCONF_BUF_WIDTH_HEIGHT, &imgResol) != MFC_RET_OK) {
-                ret = OMX_ErrorMFCInit;
-                NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipMfcDecGetConfig failed", __FUNCTION__);
+            if (SsbSipDmaiDecGetConfig(hDMAIHandle, DMAI_DEC_GETCONF_BUF_WIDTH_HEIGHT, &imgResol) != DMAI_RET_OK) {
+                ret = OMX_ErrorDMAIInit;
+                NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipDmaiDecGetConfig failed", __FUNCTION__);
                 goto EXIT;
             }
 
@@ -1136,8 +1136,8 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
                     pInputPort->portDefinition.format.video.nFrameWidth,  pInputPort->portDefinition.format.video.nFrameHeight,
                     pInputPort->portDefinition.format.video.nStride, pInputPort->portDefinition.format.video.nSliceHeight);
 
-            pMpeg4Dec->hMFCMpeg4Handle.bConfiguredMFC = OMX_TRUE;
-            if (pMpeg4Dec->hMFCMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
+            pMpeg4Dec->hDMAIMpeg4Handle.bConfiguredDMAI = OMX_TRUE;
+            if (pMpeg4Dec->hDMAIMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
                 pOutputData->timeStamp = pInputData->timeStamp;
                 pOutputData->nFlags = pInputData->nFlags;
                 ret = OMX_ErrorNone;
@@ -1147,8 +1147,8 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             }
             goto EXIT;
         } else {
-            NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipMfcDecInit failed", __FUNCTION__);
-            ret = OMX_ErrorMFCInit;    /* OMX_ErrorUndefined */
+            NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipDmaiDecInit failed", __FUNCTION__);
+            ret = OMX_ErrorDMAIInit;    /* OMX_ErrorUndefined */
             goto EXIT;
         }
     }
@@ -1159,25 +1159,25 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pNAMComponent->bUseFlagEOF = OMX_TRUE;
 #endif
 
-    pNAMComponent->timeStamp[pMpeg4Dec->hMFCMpeg4Handle.indexTimestamp] = pInputData->timeStamp;
-    pNAMComponent->nFlags[pMpeg4Dec->hMFCMpeg4Handle.indexTimestamp] = pInputData->nFlags;
+    pNAMComponent->timeStamp[pMpeg4Dec->hDMAIMpeg4Handle.indexTimestamp] = pInputData->timeStamp;
+    pNAMComponent->nFlags[pMpeg4Dec->hDMAIMpeg4Handle.indexTimestamp] = pInputData->nFlags;
 
-    if ((pMpeg4Dec->hMFCMpeg4Handle.returnCodec == MFC_RET_OK) &&
+    if ((pMpeg4Dec->hDMAIMpeg4Handle.returnCodec == DMAI_RET_OK) &&
         (pMpeg4Dec->bFirstFrame == OMX_FALSE)) {
-        SSBSIP_MFC_DEC_OUTBUF_STATUS status;
+        SSBSIP_DMAI_DEC_OUTBUF_STATUS status;
         OMX_S32 indexTimestamp = 0;
 
-        /* wait for mfc decode done */
+        /* wait for dmai decode done */
         if (pMpeg4Dec->NBDecThread.bDecoderRun == OMX_TRUE) {
             NAM_OSAL_SemaphoreWait(pMpeg4Dec->NBDecThread.hDecFrameEnd);
             pMpeg4Dec->NBDecThread.bDecoderRun = OMX_FALSE;
         }
 
-        status = SsbSipMfcDecGetOutBuf(hMFCHandle, &outputInfo);
+        status = SsbSipDmaiDecGetOutBuf(hDMAIHandle, &outputInfo);
         bufWidth =  (outputInfo.img_width + 15) & (~15);
         bufHeight =  (outputInfo.img_height + 15) & (~15);
 
-        if ((SsbSipMfcDecGetConfig(hMFCHandle, MFC_DEC_GETCONF_FRAME_TAG, &indexTimestamp) != MFC_RET_OK) ||
+        if ((SsbSipDmaiDecGetConfig(hDMAIHandle, DMAI_DEC_GETCONF_FRAME_TAG, &indexTimestamp) != DMAI_RET_OK) ||
             (((indexTimestamp < 0) || (indexTimestamp >= MAX_TIMESTAMP)))) {
             pOutputData->timeStamp = pInputData->timeStamp;
             pOutputData->nFlags = pInputData->nFlags;
@@ -1187,18 +1187,18 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         }
         NAM_OSAL_Log(NAM_LOG_TRACE, "timestamp %lld us (%.2f nams)", pOutputData->timeStamp, pOutputData->timeStamp / 1E6);
 
-        if ((status == MFC_GETOUTBUF_DISPLAY_DECODING) ||
-            (status == MFC_GETOUTBUF_DISPLAY_ONLY)) {
+        if ((status == DMAI_GETOUTBUF_DISPLAY_DECODING) ||
+            (status == DMAI_GETOUTBUF_DISPLAY_ONLY)) {
             outputDataValid = OMX_TRUE;
         }
         if (pOutputData->nFlags & OMX_BUFFERFLAG_EOS)
             outputDataValid = OMX_FALSE;
 
-        if ((status == MFC_GETOUTBUF_DISPLAY_ONLY) ||
+        if ((status == DMAI_GETOUTBUF_DISPLAY_ONLY) ||
             (pNAMComponent->getAllDelayBuffer == OMX_TRUE))
             ret = OMX_ErrorInputDataDecodeYet;
 
-        if (status == MFC_GETOUTBUF_DECODING_ONLY) {
+        if (status == DMAI_GETOUTBUF_DECODING_ONLY) {
             if (((pInputData->nFlags & OMX_BUFFERFLAG_EOS) != OMX_BUFFERFLAG_EOS) &&
                 (pNAMComponent->bSaveFlagEOS == OMX_TRUE)) {
                 pInputData->nFlags |= OMX_BUFFERFLAG_EOS;
@@ -1248,44 +1248,44 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
     }
 
     if (ret == OMX_ErrorInputDataDecodeYet) {
-        pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].dataSize = oneFrameSize;
+        pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].dataSize = oneFrameSize;
         pMpeg4Dec->indexInputBuffer++;
-        pMpeg4Dec->indexInputBuffer %= MFC_INPUT_BUFFER_NUM_MAX;
-        pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamBuffer    = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
-        pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamPhyBuffer = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].PhyAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].bufferSize;
-        oneFrameSize = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].dataSize;
+        pMpeg4Dec->indexInputBuffer %= DMAI_INPUT_BUFFER_NUM_MAX;
+        pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamBuffer    = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
+        pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamPhyBuffer = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].PhyAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].bufferSize;
+        oneFrameSize = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].dataSize;
         //pInputData->dataLen = oneFrameSize;
         //pInputData->remainDataLen = oneFrameSize;
     }
 
-    if ((Check_Stream_PrefixCode(pInputData->dataBuffer, pInputData->dataLen, pMpeg4Dec->hMFCMpeg4Handle.codecType) == OMX_TRUE) &&
+    if ((Check_Stream_PrefixCode(pInputData->dataBuffer, pInputData->dataLen, pMpeg4Dec->hDMAIMpeg4Handle.codecType) == OMX_TRUE) &&
         ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) != OMX_BUFFERFLAG_EOS)) {
-        SsbSipMfcDecSetConfig(hMFCHandle, MFC_DEC_SETCONF_FRAME_TAG, &(pMpeg4Dec->hMFCMpeg4Handle.indexTimestamp));
-        pMpeg4Dec->hMFCMpeg4Handle.indexTimestamp++;
-        pMpeg4Dec->hMFCMpeg4Handle.indexTimestamp %= MAX_TIMESTAMP;
+        SsbSipDmaiDecSetConfig(hDMAIHandle, DMAI_DEC_SETCONF_FRAME_TAG, &(pMpeg4Dec->hDMAIMpeg4Handle.indexTimestamp));
+        pMpeg4Dec->hDMAIMpeg4Handle.indexTimestamp++;
+        pMpeg4Dec->hDMAIMpeg4Handle.indexTimestamp %= MAX_TIMESTAMP;
 
-        SsbSipMfcDecSetInBuf(pMpeg4Dec->hMFCMpeg4Handle.hMFCHandle,
-                             pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamPhyBuffer,
-                             pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamBuffer,
+        SsbSipDmaiDecSetInBuf(pMpeg4Dec->hDMAIMpeg4Handle.hDMAIHandle,
+                             pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamPhyBuffer,
+                             pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamBuffer,
                              pNAMComponent->processData[INPUT_PORT_INDEX].allocSize);
 
-        pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].dataSize = oneFrameSize;
+        pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].dataSize = oneFrameSize;
         pMpeg4Dec->NBDecThread.oneFrameSize = oneFrameSize;
 
-        /* mfc decode start */
+        /* dmai decode start */
         NAM_OSAL_SemaphorePost(pMpeg4Dec->NBDecThread.hDecFrameStart);
         pMpeg4Dec->NBDecThread.bDecoderRun = OMX_TRUE;
-        pMpeg4Dec->hMFCMpeg4Handle.returnCodec = MFC_RET_OK;
+        pMpeg4Dec->hDMAIMpeg4Handle.returnCodec = DMAI_RET_OK;
 
         pMpeg4Dec->indexInputBuffer++;
-        pMpeg4Dec->indexInputBuffer %= MFC_INPUT_BUFFER_NUM_MAX;
-        pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamBuffer    = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
-        pMpeg4Dec->hMFCMpeg4Handle.pMFCStreamPhyBuffer = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].PhyAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = pMpeg4Dec->MFCDecInputBuffer[pMpeg4Dec->indexInputBuffer].bufferSize;
-        if (((pMpeg4Dec->hMFCMpeg4Handle.bThumbnailMode == OMX_TRUE) || (pNAMComponent->bSaveFlagEOS == OMX_TRUE)) &&
+        pMpeg4Dec->indexInputBuffer %= DMAI_INPUT_BUFFER_NUM_MAX;
+        pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamBuffer    = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
+        pMpeg4Dec->hDMAIMpeg4Handle.pDMAIStreamPhyBuffer = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].PhyAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].VirAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = pMpeg4Dec->DMAIDecInputBuffer[pMpeg4Dec->indexInputBuffer].bufferSize;
+        if (((pMpeg4Dec->hDMAIMpeg4Handle.bThumbnailMode == OMX_TRUE) || (pNAMComponent->bSaveFlagEOS == OMX_TRUE)) &&
             (pMpeg4Dec->bFirstFrame == OMX_TRUE) &&
             (outputDataValid == OMX_FALSE)) {
             ret = OMX_ErrorInputDataDecodeYet;
@@ -1330,7 +1330,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             pOutputBuf[1] = pVirAddrs[1];
         }
 #endif
-        if ((pMpeg4Dec->hMFCMpeg4Handle.bThumbnailMode == OMX_FALSE) &&
+        if ((pMpeg4Dec->hDMAIMpeg4Handle.bThumbnailMode == OMX_FALSE) &&
             (pNAMOutputPort->portDefinition.format.video.eColorFormat == OMX_NAM_COLOR_FormatNV12TPhysicalAddress))
         {
             /* if use Post copy address structure */
@@ -1393,8 +1393,8 @@ EXIT:
     return ret;
 }
 
-/* MFC Decode */
-OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
+/* DMAI Decode */
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT   *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
@@ -1415,7 +1415,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Dec_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, N
         goto EXIT;
     }
 
-    ret = NAM_MFC_Mpeg4_Decode(pOMXComponent, pInputData, pOutputData);
+    ret = NAM_DMAI_Mpeg4_Decode(pOMXComponent, pInputData, pOutputData);
     if (ret != OMX_ErrorNone) {
         if (ret == OMX_ErrorInputDataDecodeYet) {
             pOutputData->usedDataLen = 0;
@@ -1496,7 +1496,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     }
     NAM_OSAL_Memset(pMpeg4Dec, 0, sizeof(NAM_MPEG4_HANDLE));
     pNAMComponent->hCodecHandle = (OMX_HANDLETYPE)pMpeg4Dec;
-    pMpeg4Dec->hMFCMpeg4Handle.codecType = codecType;
+    pMpeg4Dec->hDMAIMpeg4Handle.codecType = codecType;
 
     if (codecType == CODEC_TYPE_MPEG4)
         NAM_OSAL_Strcpy(pNAMComponent->componentName, NAM_OMX_COMPONENT_MPEG4_DEC);
@@ -1576,17 +1576,17 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
         }
     }
 
-    pOMXComponent->GetParameter      = &NAM_MFC_Mpeg4Dec_GetParameter;
-    pOMXComponent->SetParameter      = &NAM_MFC_Mpeg4Dec_SetParameter;
-    pOMXComponent->GetConfig         = &NAM_MFC_Mpeg4Dec_GetConfig;
-    pOMXComponent->SetConfig         = &NAM_MFC_Mpeg4Dec_SetConfig;
-    pOMXComponent->GetExtensionIndex = &NAM_MFC_Mpeg4Dec_GetExtensionIndex;
-    pOMXComponent->ComponentRoleEnum = &NAM_MFC_Mpeg4Dec_ComponentRoleEnum;
+    pOMXComponent->GetParameter      = &NAM_DMAI_Mpeg4Dec_GetParameter;
+    pOMXComponent->SetParameter      = &NAM_DMAI_Mpeg4Dec_SetParameter;
+    pOMXComponent->GetConfig         = &NAM_DMAI_Mpeg4Dec_GetConfig;
+    pOMXComponent->SetConfig         = &NAM_DMAI_Mpeg4Dec_SetConfig;
+    pOMXComponent->GetExtensionIndex = &NAM_DMAI_Mpeg4Dec_GetExtensionIndex;
+    pOMXComponent->ComponentRoleEnum = &NAM_DMAI_Mpeg4Dec_ComponentRoleEnum;
     pOMXComponent->ComponentDeInit   = &NAM_OMX_ComponentDeinit;
 
-    pNAMComponent->nam_mfc_componentInit      = &NAM_MFC_Mpeg4Dec_Init;
-    pNAMComponent->nam_mfc_componentTerminate = &NAM_MFC_Mpeg4Dec_Terminate;
-    pNAMComponent->nam_mfc_bufferProcess      = &NAM_MFC_Mpeg4Dec_bufferProcess;
+    pNAMComponent->nam_dmai_componentInit      = &NAM_DMAI_Mpeg4Dec_Init;
+    pNAMComponent->nam_dmai_componentTerminate = &NAM_DMAI_Mpeg4Dec_Terminate;
+    pNAMComponent->nam_dmai_bufferProcess      = &NAM_DMAI_Mpeg4Dec_bufferProcess;
     if (codecType == CODEC_TYPE_MPEG4)
         pNAMComponent->nam_checkInputFrame = &Check_Mpeg4_Frame;
     else

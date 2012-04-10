@@ -2,6 +2,8 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
+include $(LOCAL_PATH)/../../../../Config.mk
+
 LOCAL_MODULE_TAGS := optional
 
 ifeq ($(ARCH_ARM_HAVE_NEON),true)
@@ -30,7 +32,7 @@ LOCAL_STATIC_LIBRARIES :=
 LOCAL_SHARED_LIBRARIES := liblog
 
 LOCAL_C_INCLUDES := \
-	$(NAM_CODECS)/video/mfc_c110/include
+	$(NAM_CODECS)/video/dm3730/include
 
 include $(BUILD_STATIC_LIBRARY)
 

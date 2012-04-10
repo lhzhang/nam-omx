@@ -258,8 +258,8 @@ OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U3
                     pNAMComponent->pNAMPort[i].bufferSemID = NULL;
                 }
             }
-            if (pNAMComponent->nam_mfc_componentTerminate != NULL)
-                pNAMComponent->nam_mfc_componentTerminate(pOMXComponent);
+            if (pNAMComponent->nam_dmai_componentTerminate != NULL)
+                pNAMComponent->nam_dmai_componentTerminate(pOMXComponent);
             break;
         }
         ret = OMX_ErrorInvalidState;
@@ -290,7 +290,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U3
                 pNAMComponent->pNAMPort[i].bufferSemID = NULL;
             }
 
-            pNAMComponent->nam_mfc_componentTerminate(pOMXComponent);
+            pNAMComponent->nam_dmai_componentTerminate(pOMXComponent);
 
             for (i = 0; i < (pNAMComponent->portParam.nPorts); i++) {
                 pNAMPort = (pNAMComponent->pNAMPort + i);
@@ -346,7 +346,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U3
                     }
                 }
             }
-            ret = pNAMComponent->nam_mfc_componentInit(pOMXComponent);
+            ret = pNAMComponent->nam_dmai_componentInit(pOMXComponent);
             if (ret != OMX_ErrorNone) {
                 /*
                  * if (CHECK_PORT_TUNNELED == OMX_TRUE) thenTunnel Buffer Free

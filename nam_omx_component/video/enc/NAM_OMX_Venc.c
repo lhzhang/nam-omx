@@ -977,7 +977,7 @@ OMX_ERRORTYPE NAM_OMX_BufferProcess(OMX_HANDLETYPE hComponent)
 
                 NAM_OSAL_MutexLock(inputUseBuffer->bufferMutex);
                 NAM_OSAL_MutexLock(outputUseBuffer->bufferMutex);
-                ret = pNAMComponent->nam_mfc_bufferProcess(pOMXComponent, inputData, outputData);
+                ret = pNAMComponent->nam_dmai_bufferProcess(pOMXComponent, inputData, outputData);
 
                 if (inputUseBuffer->remainDataLen == 0)
                     NAM_InputBufferReturn(pOMXComponent);

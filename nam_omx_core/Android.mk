@@ -9,6 +9,8 @@ LOCAL_SRC_FILES := NAM_OMX_Component_Register.c \
 
 LOCAL_MODULE := libNAM_OMX_Core
 
+LOCAL_PRELINK_MODULE := false
+
 LOCAL_CFLAGS :=
 
 LOCAL_ARM_MODE := arm

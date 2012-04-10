@@ -1,6 +1,8 @@
 LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
+include $(LOCAL_PATH)/../Config.mk
+
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := \
@@ -12,9 +14,11 @@ LOCAL_SRC_FILES := \
 	NAM_OSAL_Memory.c \
 	NAM_OSAL_Semaphore.c \
 	NAM_OSAL_Library.c \
-	NAM_OSAL_Log.c \
-	NAM_OSAL_Buffer.cpp
+	NAM_OSAL_Log.c
 
+ifeq ($(SUPPORT_ICS), true)
+LOCAL_SRC_FILES += NAM_OSAL_Buffer.cpp
+endif
 
 LOCAL_MODULE := libnamosal
 

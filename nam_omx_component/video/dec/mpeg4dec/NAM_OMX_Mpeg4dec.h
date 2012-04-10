@@ -55,17 +55,17 @@ typedef struct _BitmapInfoHhr
     OMX_U32    BiClrImportant;
 } BitmapInfoHhr;
 
-typedef struct _NAM_MFC_MPEG4_HANDLE
+typedef struct _NAM_DMAI_MPEG4_HANDLE
 {
-    OMX_HANDLETYPE hMFCHandle;
-    OMX_PTR        pMFCStreamBuffer;
-    OMX_PTR        pMFCStreamPhyBuffer;
+    OMX_HANDLETYPE hDMAIHandle;
+    OMX_PTR        pDMAIStreamBuffer;
+    OMX_PTR        pDMAIStreamPhyBuffer;
     OMX_U32        indexTimestamp;
-    OMX_BOOL       bConfiguredMFC;
+    OMX_BOOL       bConfiguredDMAI;
     OMX_BOOL       bThumbnailMode;
     CODEC_TYPE     codecType;
     OMX_S32        returnCodec;
-} NAM_MFC_MPEG4_HANDLE;
+} NAM_DMAI_MPEG4_HANDLE;
 
 typedef struct _NAM_MPEG4_HANDLE
 {
@@ -74,13 +74,13 @@ typedef struct _NAM_MPEG4_HANDLE
     OMX_VIDEO_PARAM_MPEG4TYPE mpeg4Component[ALL_PORT_NUM];
     OMX_VIDEO_PARAM_ERRORCORRECTIONTYPE errorCorrectionType[ALL_PORT_NUM];
 
-    /* NAM MFC Codec specific */
-    NAM_MFC_MPEG4_HANDLE      hMFCMpeg4Handle;
+    /* NAM DMAI Codec specific */
+    NAM_DMAI_MPEG4_HANDLE      hDMAIMpeg4Handle;
 
     /* For Non-Block mode */
-    NAM_MFC_NBDEC_THREAD NBDecThread;
+    NAM_DMAI_NBDEC_THREAD NBDecThread;
     OMX_BOOL bFirstFrame;
-    MFC_DEC_INPUT_BUFFER MFCDecInputBuffer[MFC_INPUT_BUFFER_NUM_MAX];
+    DMAI_DEC_INPUT_BUFFER DMAIDecInputBuffer[DMAI_INPUT_BUFFER_NUM_MAX];
     OMX_U32  indexInputBuffer;
 } NAM_MPEG4_HANDLE;
 

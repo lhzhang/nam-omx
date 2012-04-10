@@ -35,7 +35,7 @@
 #include "NAM_OMX_Venc.h"
 #include "library_register.h"
 #include "NAM_OMX_Mpeg4enc.h"
-#include "SsbSipMfcApi.h"
+#include "SsbSipDmaiApi.h"
 #include "color_space_convertor.h"
 
 #undef  NAM_LOG_TAG
@@ -74,7 +74,7 @@ NAM_OMX_VIDEO_PROFILELEVEL supportedH263ProfileLevels[] = {
     {OMX_VIDEO_H263ProfileBaseline, OMX_VIDEO_H263Level60},
     {OMX_VIDEO_H263ProfileBaseline, OMX_VIDEO_H263Level70}};
 
-OMX_U32 OMXMpeg4ProfileToMFCProfile(OMX_VIDEO_MPEG4PROFILETYPE profile)
+OMX_U32 OMXMpeg4ProfileToDMAIProfile(OMX_VIDEO_MPEG4PROFILETYPE profile)
 {
     OMX_U32 ret;
 
@@ -91,7 +91,7 @@ OMX_U32 OMXMpeg4ProfileToMFCProfile(OMX_VIDEO_MPEG4PROFILETYPE profile)
 
     return ret;
 }
-OMX_U32 OMXMpeg4LevelToMFCLevel(OMX_VIDEO_MPEG4LEVELTYPE level)
+OMX_U32 OMXMpeg4LevelToDMAILevel(OMX_VIDEO_MPEG4LEVELTYPE level)
 {
     OMX_U32 ret;
 
@@ -125,7 +125,7 @@ OMX_U32 OMXMpeg4LevelToMFCLevel(OMX_VIDEO_MPEG4LEVELTYPE level)
     return ret;
 }
 
-void Mpeg4PrintParams(SSBSIP_MFC_ENC_MPEG4_PARAM mpeg4Param)
+void Mpeg4PrintParams(SSBSIP_DMAI_ENC_MPEG4_PARAM mpeg4Param)
 {
     NAM_OSAL_Log(NAM_LOG_TRACE, "SourceWidth             : %d\n", mpeg4Param.SourceWidth);
     NAM_OSAL_Log(NAM_LOG_TRACE, "SourceHeight            : %d\n", mpeg4Param.SourceHeight);
@@ -155,7 +155,7 @@ void Mpeg4PrintParams(SSBSIP_MFC_ENC_MPEG4_PARAM mpeg4Param)
     NAM_OSAL_Log(NAM_LOG_TRACE, "DisableQpelME           : %d\n", mpeg4Param.DisableQpelME);
 }
 
-void H263PrintParams(SSBSIP_MFC_ENC_H263_PARAM h263Param)
+void H263PrintParams(SSBSIP_DMAI_ENC_H263_PARAM h263Param)
 {
     NAM_OSAL_Log(NAM_LOG_TRACE, "SourceWidth             : %d\n", h263Param.SourceWidth);
     NAM_OSAL_Log(NAM_LOG_TRACE, "SourceHeight            : %d\n", h263Param.SourceHeight);
@@ -178,7 +178,7 @@ void H263PrintParams(SSBSIP_MFC_ENC_H263_PARAM h263Param)
     NAM_OSAL_Log(NAM_LOG_TRACE, "FrameRate               : %d\n", h263Param.FrameRate);
 }
 
-void Set_Mpeg4Enc_Param(SSBSIP_MFC_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BANAMOMPONENT *pNAMComponent)
+void Set_Mpeg4Enc_Param(SSBSIP_DMAI_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BANAMOMPONENT *pNAMComponent)
 {
     NAM_OMX_BASEPORT    *pNAMInputPort = NULL;
     NAM_OMX_BASEPORT    *pNAMOutputPort = NULL;
@@ -206,8 +206,8 @@ void Set_Mpeg4Enc_Param(SSBSIP_MFC_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BANAMOM
     pMpeg4Param->CbPadVal             = 0;
     pMpeg4Param->CrPadVal             = 0;
 
-    pMpeg4Param->ProfileIDC           = OMXMpeg4ProfileToMFCProfile(pMpeg4Enc->mpeg4Component[OUTPUT_PORT_INDEX].eProfile);
-    pMpeg4Param->LevelIDC             = OMXMpeg4LevelToMFCLevel(pMpeg4Enc->mpeg4Component[OUTPUT_PORT_INDEX].eLevel);
+    pMpeg4Param->ProfileIDC           = OMXMpeg4ProfileToDMAIProfile(pMpeg4Enc->mpeg4Component[OUTPUT_PORT_INDEX].eProfile);
+    pMpeg4Param->LevelIDC             = OMXMpeg4LevelToDMAILevel(pMpeg4Enc->mpeg4Component[OUTPUT_PORT_INDEX].eLevel);
     pMpeg4Param->FrameQp_B            = 20;
     pMpeg4Param->TimeIncreamentRes    = (pNAMInputPort->portDefinition.format.video.xFramerate) >> 16;
     pMpeg4Param->VopTimeIncreament    = 1;
@@ -262,7 +262,7 @@ void Set_Mpeg4Enc_Param(SSBSIP_MFC_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BANAMOM
     Mpeg4PrintParams(*pMpeg4Param);
 }
 
-void Set_H263Enc_Param(SSBSIP_MFC_ENC_H263_PARAM *pH263Param, NAM_OMX_BANAMOMPONENT *pNAMComponent)
+void Set_H263Enc_Param(SSBSIP_DMAI_ENC_H263_PARAM *pH263Param, NAM_OMX_BANAMOMPONENT *pNAMComponent)
 {
     NAM_OMX_BASEPORT    *pNAMInputPort = NULL;
     NAM_OMX_BASEPORT    *pNAMOutputPort = NULL;
@@ -339,7 +339,7 @@ void Set_H263Enc_Param(SSBSIP_MFC_ENC_H263_PARAM *pH263Param, NAM_OMX_BANAMOMPON
     H263PrintParams(*pH263Param);
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_GetParameter(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetParameter(
     OMX_IN    OMX_HANDLETYPE hComponent,
     OMX_IN    OMX_INDEXTYPE  nParamIndex,
     OMX_INOUT OMX_PTR        pComponentParameterStructure)
@@ -425,7 +425,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_GetParameter(
             goto EXIT;
         }
 
-        codecType = ((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType;
+        codecType = ((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4)
             NAM_OSAL_Strcpy((char *)pComponentRole->cRole, NAM_OMX_COMPONENT_MPEG4_ENC_ROLE);
         else
@@ -449,7 +449,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_GetParameter(
             goto EXIT;
         }
 
-        codecType = ((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType;
+        codecType = ((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4) {
             pProfileLevel = supportedMPEG4ProfileLevels;
             maxProfileLevelNum = sizeof(supportedMPEG4ProfileLevels) / sizeof(NAM_OMX_VIDEO_PROFILELEVEL);
@@ -487,7 +487,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_GetParameter(
         }
 
         pMpeg4Enc = (NAM_MPEG4ENC_HANDLE *)pNAMComponent->hCodecHandle;
-        codecType = pMpeg4Enc->hMFCMpeg4Handle.codecType;
+        codecType = pMpeg4Enc->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4) {
             pSrcMpeg4Param = &pMpeg4Enc->mpeg4Component[pDstProfileLevel->nPortIndex];
             pDstProfileLevel->eProfile = pSrcMpeg4Param->eProfile;
@@ -535,7 +535,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_SetParameter(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_SetParameter(
     OMX_IN OMX_HANDLETYPE hComponent,
     OMX_IN OMX_INDEXTYPE  nIndex,
     OMX_IN OMX_PTR        pComponentParameterStructure)
@@ -627,10 +627,10 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_SetParameter(
 
         if (!NAM_OSAL_Strcmp((char*)pComponentRole->cRole, NAM_OMX_COMPONENT_MPEG4_ENC_ROLE)) {
             pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX].portDefinition.format.video.eCompressionFormat = OMX_VIDEO_CodingMPEG4;
-            //((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType = CODEC_TYPE_MPEG4;
+            //((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType = CODEC_TYPE_MPEG4;
         } else if (!NAM_OSAL_Strcmp((char*)pComponentRole->cRole, NAM_OMX_COMPONENT_H263_ENC_ROLE)) {
             pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX].portDefinition.format.video.eCompressionFormat = OMX_VIDEO_CodingH263;
-            //((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType = CODEC_TYPE_H263;
+            //((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType = CODEC_TYPE_H263;
         } else {
             ret = OMX_ErrorBadParameter;
             goto EXIT;
@@ -656,7 +656,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_SetParameter(
         }
 
         pMpeg4Enc = (NAM_MPEG4ENC_HANDLE *)pNAMComponent->hCodecHandle;
-        codecType = pMpeg4Enc->hMFCMpeg4Handle.codecType;
+        codecType = pMpeg4Enc->hDMAIMpeg4Handle.codecType;
         if (codecType == CODEC_TYPE_MPEG4) {
             /*
              * To do: Check validity of profile & level parameters
@@ -712,7 +712,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_GetConfig(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetConfig(
     OMX_HANDLETYPE hComponent,
     OMX_INDEXTYPE nIndex,
     OMX_PTR pComponentConfigStructure)
@@ -760,7 +760,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_SetConfig(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_SetConfig(
     OMX_IN OMX_HANDLETYPE hComponent,
     OMX_IN OMX_INDEXTYPE  nIndex,
     OMX_IN OMX_PTR        pComponentConfigStructure)
@@ -803,7 +803,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_GetExtensionIndex(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetExtensionIndex(
     OMX_IN OMX_HANDLETYPE  hComponent,
     OMX_IN OMX_STRING      cParameterName,
     OMX_OUT OMX_INDEXTYPE *pIndexType)
@@ -856,7 +856,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_ComponentRoleEnum(
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_ComponentRoleEnum(
     OMX_IN  OMX_HANDLETYPE hComponent,
     OMX_OUT OMX_U8        *cRole,
     OMX_IN  OMX_U32        nIndex)
@@ -892,7 +892,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_ComponentRoleEnum(
         goto EXIT;
     }
 
-    codecType = ((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hMFCMpeg4Handle.codecType;
+    codecType = ((NAM_MPEG4ENC_HANDLE *)(pNAMComponent->hCodecHandle))->hDMAIMpeg4Handle.codecType;
     if (codecType == CODEC_TYPE_MPEG4)
         NAM_OSAL_Strcpy((char *)cRole, NAM_OMX_COMPONENT_MPEG4_ENC_ROLE);
     else
@@ -904,7 +904,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_EncodeThread(OMX_HANDLETYPE hComponent)
+OMX_ERRORTYPE NAM_DMAI_EncodeThread(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
@@ -925,7 +925,7 @@ OMX_ERRORTYPE NAM_MFC_EncodeThread(OMX_HANDLETYPE hComponent)
         NAM_OSAL_SemaphoreWait(pMpeg4Enc->NBEncThread.hEncFrameStart);
 
         if (pMpeg4Enc->NBEncThread.bExitEncodeThread == OMX_FALSE) {
-            pMpeg4Enc->hMFCMpeg4Handle.returnCodec = SsbSipMfcEncExe(pMpeg4Enc->hMFCMpeg4Handle.hMFCHandle);
+            pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiEncExe(pMpeg4Enc->hDMAIMpeg4Handle.hDMAIHandle);
             NAM_OSAL_SemaphorePost(pMpeg4Enc->NBEncThread.hEncFrameEnd);
         }
     }
@@ -937,8 +937,8 @@ EXIT:
     return ret;
 }
 
-/* MFC Init */
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_Init(OMX_COMPONENTTYPE *pOMXComponent)
+/* DMAI Init */
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_Init(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
@@ -946,76 +946,76 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_Init(OMX_COMPONENTTYPE *pOMXComponent)
     NAM_OMX_BASEPORT          *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_OMX_BASEPORT          *pNAMPort = NULL;
     NAM_MPEG4ENC_HANDLE       *pMpeg4Enc = NULL;
-    OMX_HANDLETYPE             hMFCHandle = NULL;
+    OMX_HANDLETYPE             hDMAIHandle = NULL;
     OMX_S32                    returnCodec = 0;
 
     FunctionIn();
 
     pMpeg4Enc = (NAM_MPEG4ENC_HANDLE *)pNAMComponent->hCodecHandle;
-    pMpeg4Enc->hMFCMpeg4Handle.bConfiguredMFC = OMX_FALSE;
+    pMpeg4Enc->hDMAIMpeg4Handle.bConfiguredDMAI = OMX_FALSE;
     pNAMComponent->bUseFlagEOF = OMX_FALSE;
     pNAMComponent->bSaveFlagEOS = OMX_FALSE;
 
-    /* MFC(Multi Format Codec) encoder and CMM(Codec Memory Management) driver open */
-    SSBIP_MFC_BUFFER_TYPE buf_type = CACHE;
-    hMFCHandle = (OMX_PTR)SsbSipMfcEncOpen(&buf_type);
-    if (hMFCHandle == NULL) {
+    /* DMAI(Multi Format Codec) encoder and CMM(Codec Memory Management) driver open */
+    SSBIP_DMAI_BUFFER_TYPE buf_type = CACHE;
+    hDMAIHandle = (OMX_PTR)SsbSipDmaiEncOpen(&buf_type);
+    if (hDMAIHandle == NULL) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
-    pMpeg4Enc->hMFCMpeg4Handle.hMFCHandle = hMFCHandle;
+    pMpeg4Enc->hDMAIMpeg4Handle.hDMAIHandle = hDMAIHandle;
 
-    /* set MFC ENC VIDEO PARAM and initialize MFC encoder instance */
-    if (pMpeg4Enc->hMFCMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
-        SsbSipMfcEncSetSize(hMFCHandle, MPEG4_ENC,
+    /* set DMAI ENC VIDEO PARAM and initialize DMAI encoder instance */
+    if (pMpeg4Enc->hDMAIMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
+        SsbSipDmaiEncSetSize(hDMAIHandle, MPEG4_ENC,
                             pNAMOutputPort->portDefinition.format.video.nFrameWidth,
                             pNAMOutputPort->portDefinition.format.video.nFrameHeight);
     } else {
-        SsbSipMfcEncSetSize(hMFCHandle, H263_ENC,
+        SsbSipDmaiEncSetSize(hDMAIHandle, H263_ENC,
                             pNAMOutputPort->portDefinition.format.video.nFrameWidth,
                             pNAMOutputPort->portDefinition.format.video.nFrameHeight);
     }
 
     /* allocate encoder's input buffer */
-    returnCodec = SsbSipMfcEncGetInBuf(hMFCHandle, &(pMpeg4Enc->hMFCMpeg4Handle.inputInfo));
-    if (returnCodec != MFC_RET_OK) {
+    returnCodec = SsbSipDmaiEncGetInBuf(hDMAIHandle, &(pMpeg4Enc->hDMAIMpeg4Handle.inputInfo));
+    if (returnCodec != DMAI_RET_OK) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
-    pMpeg4Enc->MFCEncInputBuffer[0].YPhyAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YPhyAddr;
-    pMpeg4Enc->MFCEncInputBuffer[0].CPhyAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CPhyAddr;
-    pMpeg4Enc->MFCEncInputBuffer[0].YVirAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YVirAddr;
-    pMpeg4Enc->MFCEncInputBuffer[0].CVirAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CVirAddr;
-    pMpeg4Enc->MFCEncInputBuffer[0].YBufferSize = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YSize;
-    pMpeg4Enc->MFCEncInputBuffer[0].CBufferSize = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CSize;
-    pMpeg4Enc->MFCEncInputBuffer[0].YDataSize = 0;
-    pMpeg4Enc->MFCEncInputBuffer[0].CDataSize = 0;
-    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YVirAddr : 0x%x", pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YVirAddr);
-    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CVirAddr : 0x%x", pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CVirAddr);
+    pMpeg4Enc->DMAIEncInputBuffer[0].YPhyAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YPhyAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[0].CPhyAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CPhyAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[0].YVirAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YVirAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[0].CVirAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CVirAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[0].YBufferSize = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YSize;
+    pMpeg4Enc->DMAIEncInputBuffer[0].CBufferSize = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CSize;
+    pMpeg4Enc->DMAIEncInputBuffer[0].YDataSize = 0;
+    pMpeg4Enc->DMAIEncInputBuffer[0].CDataSize = 0;
+    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YVirAddr : 0x%x", pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YVirAddr);
+    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CVirAddr : 0x%x", pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CVirAddr);
 
     /* allocate encoder's input buffer */
-    returnCodec = SsbSipMfcEncGetInBuf(hMFCHandle, &(pMpeg4Enc->hMFCMpeg4Handle.inputInfo));
-    if (returnCodec != MFC_RET_OK) {
+    returnCodec = SsbSipDmaiEncGetInBuf(hDMAIHandle, &(pMpeg4Enc->hDMAIMpeg4Handle.inputInfo));
+    if (returnCodec != DMAI_RET_OK) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
-    pMpeg4Enc->MFCEncInputBuffer[1].YPhyAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YPhyAddr;
-    pMpeg4Enc->MFCEncInputBuffer[1].CPhyAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CPhyAddr;
-    pMpeg4Enc->MFCEncInputBuffer[1].YVirAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YVirAddr;
-    pMpeg4Enc->MFCEncInputBuffer[1].CVirAddr = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CVirAddr;
-    pMpeg4Enc->MFCEncInputBuffer[1].YBufferSize = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YSize;
-    pMpeg4Enc->MFCEncInputBuffer[1].CBufferSize = pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CSize;
-    pMpeg4Enc->MFCEncInputBuffer[1].YDataSize = 0;
-    pMpeg4Enc->MFCEncInputBuffer[1].CDataSize = 0;
-    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YVirAddr : 0x%x", pMpeg4Enc->hMFCMpeg4Handle.inputInfo.YVirAddr);
-    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CVirAddr : 0x%x", pMpeg4Enc->hMFCMpeg4Handle.inputInfo.CVirAddr);
+    pMpeg4Enc->DMAIEncInputBuffer[1].YPhyAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YPhyAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[1].CPhyAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CPhyAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[1].YVirAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YVirAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[1].CVirAddr = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CVirAddr;
+    pMpeg4Enc->DMAIEncInputBuffer[1].YBufferSize = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YSize;
+    pMpeg4Enc->DMAIEncInputBuffer[1].CBufferSize = pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CSize;
+    pMpeg4Enc->DMAIEncInputBuffer[1].YDataSize = 0;
+    pMpeg4Enc->DMAIEncInputBuffer[1].CDataSize = 0;
+    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YVirAddr : 0x%x", pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.YVirAddr);
+    NAM_OSAL_Log(NAM_LOG_TRACE, "pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CVirAddr : 0x%x", pMpeg4Enc->hDMAIMpeg4Handle.inputInfo.CVirAddr);
 
-    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YPhyAddr = pMpeg4Enc->MFCEncInputBuffer[0].YPhyAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CPhyAddr = pMpeg4Enc->MFCEncInputBuffer[0].CPhyAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YVirAddr = pMpeg4Enc->MFCEncInputBuffer[0].YVirAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CVirAddr = pMpeg4Enc->MFCEncInputBuffer[0].CVirAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YSize = pMpeg4Enc->MFCEncInputBuffer[0].YBufferSize;
-    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CSize = pMpeg4Enc->MFCEncInputBuffer[0].CBufferSize;
+    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[0].YPhyAddr;
+    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[0].CPhyAddr;
+    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YVirAddr = pMpeg4Enc->DMAIEncInputBuffer[0].YVirAddr;
+    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CVirAddr = pMpeg4Enc->DMAIEncInputBuffer[0].CVirAddr;
+    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YSize = pMpeg4Enc->DMAIEncInputBuffer[0].YBufferSize;
+    pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CSize = pMpeg4Enc->DMAIEncInputBuffer[0].CBufferSize;
 
     pMpeg4Enc->indexInputBuffer = 0;
     pMpeg4Enc->bFirstFrame = OMX_TRUE;
@@ -1025,14 +1025,14 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_Init(OMX_COMPONENTTYPE *pOMXComponent)
     NAM_OSAL_SemaphoreCreate(&(pMpeg4Enc->NBEncThread.hEncFrameStart));
     NAM_OSAL_SemaphoreCreate(&(pMpeg4Enc->NBEncThread.hEncFrameEnd));
     if (OMX_ErrorNone == NAM_OSAL_ThreadCreate(&pMpeg4Enc->NBEncThread.hNBEncodeThread,
-                                                NAM_MFC_EncodeThread,
+                                                NAM_DMAI_EncodeThread,
                                                 pOMXComponent)) {
-        pMpeg4Enc->hMFCMpeg4Handle.returnCodec = MFC_RET_OK;
+        pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = DMAI_RET_OK;
     }
 
     NAM_OSAL_Memset(pNAMComponent->timeStamp, -19771003, sizeof(OMX_TICKS) * MAX_TIMESTAMP);
     NAM_OSAL_Memset(pNAMComponent->nFlags, 0, sizeof(OMX_U32) * MAX_FLAGS);
-    pMpeg4Enc->hMFCMpeg4Handle.indexTimestamp = 0;
+    pMpeg4Enc->hDMAIMpeg4Handle.indexTimestamp = 0;
 
 EXIT:
     FunctionOut();
@@ -1040,13 +1040,13 @@ EXIT:
     return ret;
 }
 
-/* MFC Terminate */
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
+/* DMAI Terminate */
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4ENC_HANDLE   *pMpeg4Enc = NULL;
-    OMX_HANDLETYPE         hMFCHandle = NULL;
+    OMX_HANDLETYPE         hDMAIHandle = NULL;
 
     FunctionIn();
 
@@ -1069,10 +1069,10 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
         pMpeg4Enc->NBEncThread.hEncFrameStart = NULL;
     }
 
-    hMFCHandle = pMpeg4Enc->hMFCMpeg4Handle.hMFCHandle;
-    if (hMFCHandle != NULL) {
-        SsbSipMfcEncClose(hMFCHandle);
-        pMpeg4Enc->hMFCMpeg4Handle.hMFCHandle = NULL;
+    hDMAIHandle = pMpeg4Enc->hDMAIMpeg4Handle.hDMAIHandle;
+    if (hDMAIHandle != NULL) {
+        SsbSipDmaiEncClose(hDMAIHandle);
+        pMpeg4Enc->hDMAIMpeg4Handle.hDMAIHandle = NULL;
     }
 
 EXIT:
@@ -1081,38 +1081,38 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
+OMX_ERRORTYPE NAM_DMAI_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4ENC_HANDLE       *pMpeg4Enc = (NAM_MPEG4ENC_HANDLE *)pNAMComponent->hCodecHandle;
-    OMX_HANDLETYPE             hMFCHandle = pMpeg4Enc->hMFCMpeg4Handle.hMFCHandle;
-    SSBSIP_MFC_ENC_INPUT_INFO *pInputInfo = &(pMpeg4Enc->hMFCMpeg4Handle.inputInfo);
-    SSBSIP_MFC_ENC_OUTPUT_INFO outputInfo;
+    OMX_HANDLETYPE             hDMAIHandle = pMpeg4Enc->hDMAIMpeg4Handle.hDMAIHandle;
+    SSBSIP_DMAI_ENC_INPUT_INFO *pInputInfo = &(pMpeg4Enc->hDMAIMpeg4Handle.inputInfo);
+    SSBSIP_DMAI_ENC_OUTPUT_INFO outputInfo;
     NAM_OMX_BASEPORT          *pNAMPort = NULL;
-    MFC_ENC_ADDR_INFO          addrInfo;
+    DMAI_ENC_ADDR_INFO          addrInfo;
     OMX_U32                    oneFrameSize = pInputData->dataLen;
 
     FunctionIn();
 
-    if (pMpeg4Enc->hMFCMpeg4Handle.bConfiguredMFC == OMX_FALSE) {
-        /* set MFC ENC VIDEO PARAM and initialize MFC encoder instance */
-        if (pMpeg4Enc->hMFCMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
-            Set_Mpeg4Enc_Param(&(pMpeg4Enc->hMFCMpeg4Handle.mpeg4MFCParam), pNAMComponent);
-            pMpeg4Enc->hMFCMpeg4Handle.returnCodec = SsbSipMfcEncInit(hMFCHandle, &(pMpeg4Enc->hMFCMpeg4Handle.mpeg4MFCParam));
+    if (pMpeg4Enc->hDMAIMpeg4Handle.bConfiguredDMAI == OMX_FALSE) {
+        /* set DMAI ENC VIDEO PARAM and initialize DMAI encoder instance */
+        if (pMpeg4Enc->hDMAIMpeg4Handle.codecType == CODEC_TYPE_MPEG4) {
+            Set_Mpeg4Enc_Param(&(pMpeg4Enc->hDMAIMpeg4Handle.mpeg4DMAIParam), pNAMComponent);
+            pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiEncInit(hDMAIHandle, &(pMpeg4Enc->hDMAIMpeg4Handle.mpeg4DMAIParam));
         } else {
-            Set_H263Enc_Param(&(pMpeg4Enc->hMFCMpeg4Handle.h263MFCParam), pNAMComponent);
-            pMpeg4Enc->hMFCMpeg4Handle.returnCodec = SsbSipMfcEncInit(hMFCHandle, &(pMpeg4Enc->hMFCMpeg4Handle.h263MFCParam));
+            Set_H263Enc_Param(&(pMpeg4Enc->hDMAIMpeg4Handle.h263DMAIParam), pNAMComponent);
+            pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiEncInit(hDMAIHandle, &(pMpeg4Enc->hDMAIMpeg4Handle.h263DMAIParam));
         }
-        if (pMpeg4Enc->hMFCMpeg4Handle.returnCodec != MFC_RET_OK) {
+        if (pMpeg4Enc->hDMAIMpeg4Handle.returnCodec != DMAI_RET_OK) {
             ret = OMX_ErrorInsufficientResources;
             goto EXIT;
         }
 
-        pMpeg4Enc->hMFCMpeg4Handle.returnCodec = SsbSipMfcEncGetOutBuf(hMFCHandle, &outputInfo);
-        if (pMpeg4Enc->hMFCMpeg4Handle.returnCodec != MFC_RET_OK)
+        pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiEncGetOutBuf(hDMAIHandle, &outputInfo);
+        if (pMpeg4Enc->hDMAIMpeg4Handle.returnCodec != DMAI_RET_OK)
         {
-            NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipMfcEncGetOutBuf failed, ret:%d", __FUNCTION__, pMpeg4Enc->hMFCMpeg4Handle.returnCodec);
+            NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipDmaiEncGetOutBuf failed, ret:%d", __FUNCTION__, pMpeg4Enc->hDMAIMpeg4Handle.returnCodec);
             ret = OMX_ErrorUndefined;
             goto EXIT;
         }
@@ -1124,7 +1124,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pOutputData->nFlags |= OMX_BUFFERFLAG_CODECCONFIG;
         pOutputData->nFlags |= OMX_BUFFERFLAG_ENDOFFRAME;
 
-        pMpeg4Enc->hMFCMpeg4Handle.bConfiguredMFC = OMX_TRUE;
+        pMpeg4Enc->hDMAIMpeg4Handle.bConfiguredDMAI = OMX_TRUE;
 
         ret = OMX_ErrorInputDataEncodeYet;
         goto EXIT;
@@ -1147,10 +1147,10 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
     if (((pInputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS) ||
         (pNAMComponent->getAllDelayBuffer == OMX_TRUE)){
         /* Dummy input data for get out encoded last frame */
-        pInputInfo->YPhyAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].YPhyAddr;
-        pInputInfo->CPhyAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].CPhyAddr;
-        pInputInfo->YVirAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].YVirAddr;
-        pInputInfo->CVirAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].CVirAddr;
+        pInputInfo->YPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].YPhyAddr;
+        pInputInfo->CPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CPhyAddr;
+        pInputInfo->YVirAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].YVirAddr;
+        pInputInfo->CVirAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CVirAddr;
     } else if (pNAMPort->portDefinition.format.video.eColorFormat == OMX_NAM_COLOR_FormatNV12TPhysicalAddress) {
         NAM_OSAL_Memcpy(&addrInfo.pAddrY, pInputData->dataBuffer, sizeof(addrInfo.pAddrY));
         NAM_OSAL_Memcpy(&addrInfo.pAddrC, pInputData->dataBuffer + sizeof(addrInfo.pAddrY), sizeof(addrInfo.pAddrC));
@@ -1168,21 +1168,21 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pInputInfo->CPhyAddr = pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CPhyAddr;
     }
 
-    pNAMComponent->timeStamp[pMpeg4Enc->hMFCMpeg4Handle.indexTimestamp] = pInputData->timeStamp;
-    pNAMComponent->nFlags[pMpeg4Enc->hMFCMpeg4Handle.indexTimestamp] = pInputData->nFlags;
+    pNAMComponent->timeStamp[pMpeg4Enc->hDMAIMpeg4Handle.indexTimestamp] = pInputData->timeStamp;
+    pNAMComponent->nFlags[pMpeg4Enc->hDMAIMpeg4Handle.indexTimestamp] = pInputData->nFlags;
 
-    if ((pMpeg4Enc->hMFCMpeg4Handle.returnCodec == MFC_RET_OK) &&
+    if ((pMpeg4Enc->hDMAIMpeg4Handle.returnCodec == DMAI_RET_OK) &&
         (pMpeg4Enc->bFirstFrame == OMX_FALSE)) {
         OMX_S32 indexTimestamp = 0;
 
-        /* wait for mfc encode done */
+        /* wait for dmai encode done */
         if (pMpeg4Enc->NBEncThread.bEncoderRun != OMX_FALSE) {
             NAM_OSAL_SemaphoreWait(pMpeg4Enc->NBEncThread.hEncFrameEnd);
             pMpeg4Enc->NBEncThread.bEncoderRun = OMX_FALSE;
         }
 
-        pMpeg4Enc->hMFCMpeg4Handle.returnCodec = SsbSipMfcEncGetOutBuf(hMFCHandle, &outputInfo);
-        if ((SsbSipMfcEncGetConfig(hMFCHandle, MFC_ENC_GETCONF_FRAME_TAG, &indexTimestamp) != MFC_RET_OK) ||
+        pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiEncGetOutBuf(hDMAIHandle, &outputInfo);
+        if ((SsbSipDmaiEncGetConfig(hDMAIHandle, DMAI_ENC_GETCONF_FRAME_TAG, &indexTimestamp) != DMAI_RET_OK) ||
             (((indexTimestamp < 0) || (indexTimestamp >= MAX_TIMESTAMP)))) {
             pOutputData->timeStamp = pInputData->timeStamp;
             pOutputData->nFlags = pInputData->nFlags;
@@ -1191,7 +1191,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             pOutputData->nFlags = pNAMComponent->nFlags[indexTimestamp];
         }
 
-        if (pMpeg4Enc->hMFCMpeg4Handle.returnCodec == MFC_RET_OK) {
+        if (pMpeg4Enc->hDMAIMpeg4Handle.returnCodec == DMAI_RET_OK) {
             /** Fill Output Buffer **/
             pOutputData->dataBuffer = outputInfo.StrmVirAddr;
             pOutputData->allocSize = outputInfo.dataSize;
@@ -1199,12 +1199,12 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             pOutputData->usedDataLen = 0;
 
             pOutputData->nFlags |= OMX_BUFFERFLAG_ENDOFFRAME;
-            if (outputInfo.frameType == MFC_FRAME_TYPE_I_FRAME)
+            if (outputInfo.frameType == DMAI_FRAME_TYPE_I_FRAME)
                     pOutputData->nFlags |= OMX_BUFFERFLAG_SYNCFRAME;
 
             ret = OMX_ErrorNone;
         } else {
-            NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipMfcEncGetOutBuf failed, ret:%d", __FUNCTION__, pMpeg4Enc->hMFCMpeg4Handle.returnCodec);
+            NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipDmaiEncGetOutBuf failed, ret:%d", __FUNCTION__, pMpeg4Enc->hDMAIMpeg4Handle.returnCodec);
             ret = OMX_ErrorUndefined;
             goto EXIT;
         }
@@ -1225,34 +1225,34 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             ret = OMX_ErrorNone;
         }
     }
-    if (pMpeg4Enc->hMFCMpeg4Handle.returnCodec != MFC_RET_OK) {
-        NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipMfcEncExe failed, ret:%d", __FUNCTION__, pMpeg4Enc->hMFCMpeg4Handle.returnCodec);
+    if (pMpeg4Enc->hDMAIMpeg4Handle.returnCodec != DMAI_RET_OK) {
+        NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipDmaiEncExe failed, ret:%d", __FUNCTION__, pMpeg4Enc->hDMAIMpeg4Handle.returnCodec);
         ret = OMX_ErrorUndefined;
     }
 
-    pMpeg4Enc->hMFCMpeg4Handle.returnCodec = SsbSipMfcEncSetInBuf(hMFCHandle, pInputInfo);
-    if (pMpeg4Enc->hMFCMpeg4Handle.returnCodec != MFC_RET_OK) {
-        NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipMfcEncSetInBuf failed, ret:%d", __FUNCTION__, pMpeg4Enc->hMFCMpeg4Handle.returnCodec);
+    pMpeg4Enc->hDMAIMpeg4Handle.returnCodec = SsbSipDmaiEncSetInBuf(hDMAIHandle, pInputInfo);
+    if (pMpeg4Enc->hDMAIMpeg4Handle.returnCodec != DMAI_RET_OK) {
+        NAM_OSAL_Log(NAM_LOG_ERROR, "%s: SsbSipDmaiEncSetInBuf failed, ret:%d", __FUNCTION__, pMpeg4Enc->hDMAIMpeg4Handle.returnCodec);
         ret = OMX_ErrorUndefined;
         goto EXIT;
     } else {
         pMpeg4Enc->indexInputBuffer++;
-        pMpeg4Enc->indexInputBuffer %= MFC_INPUT_BUFFER_NUM_MAX;
-        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YPhyAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].YPhyAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CPhyAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].CPhyAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YVirAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].YVirAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CVirAddr = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].CVirAddr;
-        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YSize = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].YBufferSize;
-        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CSize = pMpeg4Enc->MFCEncInputBuffer[pMpeg4Enc->indexInputBuffer].CBufferSize;
+        pMpeg4Enc->indexInputBuffer %= DMAI_INPUT_BUFFER_NUM_MAX;
+        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].YPhyAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CPhyAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YVirAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].YVirAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CVirAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CVirAddr;
+        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.YSize = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].YBufferSize;
+        pNAMComponent->processData[INPUT_PORT_INDEX].specificBufferHeader.CSize = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CBufferSize;
     }
 
-    SsbSipMfcEncSetConfig(hMFCHandle, MFC_ENC_SETCONF_FRAME_TAG, &(pMpeg4Enc->hMFCMpeg4Handle.indexTimestamp));
+    SsbSipDmaiEncSetConfig(hDMAIHandle, DMAI_ENC_SETCONF_FRAME_TAG, &(pMpeg4Enc->hDMAIMpeg4Handle.indexTimestamp));
 
-    /* mfc encode start */
+    /* dmai encode start */
     NAM_OSAL_SemaphorePost(pMpeg4Enc->NBEncThread.hEncFrameStart);
     pMpeg4Enc->NBEncThread.bEncoderRun = OMX_TRUE;
-    pMpeg4Enc->hMFCMpeg4Handle.indexTimestamp++;
-    pMpeg4Enc->hMFCMpeg4Handle.indexTimestamp %= MAX_TIMESTAMP;
+    pMpeg4Enc->hDMAIMpeg4Handle.indexTimestamp++;
+    pMpeg4Enc->hDMAIMpeg4Handle.indexTimestamp %= MAX_TIMESTAMP;
     pMpeg4Enc->bFirstFrame = OMX_FALSE;
 
 EXIT:
@@ -1261,8 +1261,8 @@ EXIT:
     return ret;
 }
 
-/* MFC Encode */
-OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
+/* DMAI Encode */
+OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     NAM_OMX_BANAMOMPONENT   *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
@@ -1279,7 +1279,7 @@ OMX_ERRORTYPE NAM_MFC_Mpeg4Enc_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, N
         goto EXIT;
     }
 
-    ret = NAM_MFC_Mpeg4_Encode(pOMXComponent, pInputData, pOutputData);
+    ret = NAM_DMAI_Mpeg4_Encode(pOMXComponent, pInputData, pOutputData);
     if (ret != OMX_ErrorNone) {
         if (ret == OMX_ErrorInputDataEncodeYet) {
             pOutputData->usedDataLen = 0;
@@ -1359,7 +1359,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     }
     NAM_OSAL_Memset(pMpeg4Enc, 0, sizeof(NAM_MPEG4ENC_HANDLE));
     pNAMComponent->hCodecHandle = (OMX_HANDLETYPE)pMpeg4Enc;
-    pMpeg4Enc->hMFCMpeg4Handle.codecType = codecType;
+    pMpeg4Enc->hDMAIMpeg4Handle.codecType = codecType;
 
     if (codecType == CODEC_TYPE_MPEG4)
         NAM_OSAL_Strcpy(pNAMComponent->componentName, NAM_OMX_COMPONENT_MPEG4_ENC);
@@ -1454,17 +1454,17 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
         }
     }
 
-    pOMXComponent->GetParameter      = &NAM_MFC_Mpeg4Enc_GetParameter;
-    pOMXComponent->SetParameter      = &NAM_MFC_Mpeg4Enc_SetParameter;
-    pOMXComponent->GetConfig         = &NAM_MFC_Mpeg4Enc_GetConfig;
-    pOMXComponent->SetConfig         = &NAM_MFC_Mpeg4Enc_SetConfig;
-    pOMXComponent->GetExtensionIndex = &NAM_MFC_Mpeg4Enc_GetExtensionIndex;
-    pOMXComponent->ComponentRoleEnum = &NAM_MFC_Mpeg4Enc_ComponentRoleEnum;
+    pOMXComponent->GetParameter      = &NAM_DMAI_Mpeg4Enc_GetParameter;
+    pOMXComponent->SetParameter      = &NAM_DMAI_Mpeg4Enc_SetParameter;
+    pOMXComponent->GetConfig         = &NAM_DMAI_Mpeg4Enc_GetConfig;
+    pOMXComponent->SetConfig         = &NAM_DMAI_Mpeg4Enc_SetConfig;
+    pOMXComponent->GetExtensionIndex = &NAM_DMAI_Mpeg4Enc_GetExtensionIndex;
+    pOMXComponent->ComponentRoleEnum = &NAM_DMAI_Mpeg4Enc_ComponentRoleEnum;
     pOMXComponent->ComponentDeInit   = &NAM_OMX_ComponentDeinit;
 
-    pNAMComponent->nam_mfc_componentInit      = &NAM_MFC_Mpeg4Enc_Init;
-    pNAMComponent->nam_mfc_componentTerminate = &NAM_MFC_Mpeg4Enc_Terminate;
-    pNAMComponent->nam_mfc_bufferProcess      = &NAM_MFC_Mpeg4Enc_bufferProcess;
+    pNAMComponent->nam_dmai_componentInit      = &NAM_DMAI_Mpeg4Enc_Init;
+    pNAMComponent->nam_dmai_componentTerminate = &NAM_DMAI_Mpeg4Enc_Terminate;
+    pNAMComponent->nam_dmai_bufferProcess      = &NAM_DMAI_Mpeg4Enc_bufferProcess;
     pNAMComponent->nam_checkInputFrame        = NULL;
 
     pNAMComponent->currentState = OMX_StateLoaded;

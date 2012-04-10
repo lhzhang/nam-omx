@@ -10,12 +10,13 @@ LOCAL_SRC_FILES := \
 
 LOCAL_MODULE := libOMX.NAM.AVC.Decoder
 
+LOCAL_PRELINK_MODULE := false
+
 LOCAL_CFLAGS :=
 
 LOCAL_ARM_MODE := arm
 
-LOCAL_STATIC_LIBRARIES := libNAM_OMX_Vdec libnamosal libnambanamomponent \
-						libnammfcdecapi libnamcsc
+LOCAL_STATIC_LIBRARIES := libNAM_OMX_Vdec libnamosal libnambanamomponent libnamcsc
 LOCAL_SHARED_LIBRARIES := libc libdl libcutils libutils libui libhardware
 
 LOCAL_C_INCLUDES := $(NAM_OMX_INC)/khronos \
@@ -25,6 +26,6 @@ LOCAL_C_INCLUDES := $(NAM_OMX_INC)/khronos \
 	$(NAM_OMX_COMPONENT)/common \
 	$(NAM_OMX_COMPONENT)/video/dec
 
-LOCAL_C_INCLUDES += $(NAM_OMX_TOP)/nam_codecs/video/mfc_c110/include
+LOCAL_C_INCLUDES += $(NAM_OMX_TOP)/nam_codecs/video/dm3730/include
 
 include $(BUILD_SHARED_LIBRARY)

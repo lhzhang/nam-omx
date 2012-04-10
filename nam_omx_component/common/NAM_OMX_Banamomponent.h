@@ -144,9 +144,9 @@ typedef struct _NAM_OMX_BANAMOMPONENT
     OMX_BOOL bUseFlagEOF;
     OMX_BOOL bSaveFlagEOS;
 
-    OMX_ERRORTYPE (*nam_mfc_componentInit)(OMX_COMPONENTTYPE *pOMXComponent);
-    OMX_ERRORTYPE (*nam_mfc_componentTerminate)(OMX_COMPONENTTYPE *pOMXComponent);
-    OMX_ERRORTYPE (*nam_mfc_bufferProcess) (OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData);
+    OMX_ERRORTYPE (*nam_dmai_componentInit)(OMX_COMPONENTTYPE *pOMXComponent);
+    OMX_ERRORTYPE (*nam_dmai_componentTerminate)(OMX_COMPONENTTYPE *pOMXComponent);
+    OMX_ERRORTYPE (*nam_dmai_bufferProcess) (OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData);
 
     OMX_ERRORTYPE (*nam_AllocateTunnelBuffer)(NAM_OMX_BASEPORT *pOMXBasePort, OMX_U32 nPortIndex);
     OMX_ERRORTYPE (*nam_FreeTunnelBuffer)(NAM_OMX_BASEPORT *pOMXBasePort, OMX_U32 nPortIndex);

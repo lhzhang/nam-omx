@@ -1,0 +1,2 @@
+SUPPORT_ICS := false
+ARCH_ARM_HAVE_NEON := true

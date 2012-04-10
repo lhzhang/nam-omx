@@ -15,6 +15,6 @@ LOCAL_C_INCLUDES := $(NAM_OMX_INC)/khronos \
 	$(NAM_OMX_COMPONENT)/common \
 	$(NAM_OMX_COMPONENT)/video/dec
 
-LOCAL_C_INCLUDES += $(NAM_OMX_TOP)/nam_codecs/video/mfc_c110/include
+LOCAL_C_INCLUDES += $(NAM_OMX_TOP)/nam_codecs/video/dm3730/include
 
 include $(BUILD_STATIC_LIBRARY)
