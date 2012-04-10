@@ -46,7 +46,7 @@
 #define MAX_TIMESTAMP        17
 #define MAX_FLAGS            17
 
-#define USE_ANDROID_EXTENSION
+//#define USE_ANDROID_EXTENSION
 
 
 typedef enum _NAM_CODEC_TYPE
