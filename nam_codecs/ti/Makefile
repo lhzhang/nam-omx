@@ -111,6 +111,8 @@ all:	ticodec
 
 clean:	ticodec_clean
 
+install: ticodec_install
+
 
 #-------------- OpenMax components -----------------
 
@@ -134,7 +136,7 @@ OMX_IFACE_LDFLAGS = $(OMX_LDFLAGS) -Wl,--no-undefined -llog
 
 OMX_XDCPATH = ".;$(XDC_INSTALL_DIR)/packages;$(LINK_INSTALL_DIR);$(FC_INSTALL_DIR)/packages;$(CE_INSTALL_DIR)/packages;$(XDAIS_INSTALL_DIR)/packages;$(CODEC_INSTALL_DIR)/packages;$(CMEM_INSTALL_DIR)/packages;$(DMAI_INSTALL_DIR)/packages;$(LPM_INSTALL_DIR)/packages;$(XDC_USER_PATH);$(EDMA3_LLD_INSTALL_DIR)/packages;$(C6ACCEL_INSTALL_DIR)/soc/packages"
 
-#-------------- Ti Codec -----------------
+#-------------- TI Codec -----------------
 
 PLATFORM = omap3530
 XDC_CONFIG_BASENAME = ticodec_$(PLATFORM)
@@ -157,3 +159,8 @@ ticodec: xdc_config
 
 ticodec_clean:
 	rm -rf *.o *.d *.so ticodec_$(PLATFORM)
+
+
+ticodec_install:
+	cp libticodec.so $(ANDROID_ROOT_DIR)/out/target/product/$(TARGET_PRODUCT)/system/lib
+	cp libticodec.so $(ANDROID_ROOT_DIR)/out/target/product/$(TARGET_PRODUCT)/symbols/system/lib
