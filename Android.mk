@@ -1,5 +1,3 @@
-WITH_NAM_OMX := true
-
 ifeq ($(WITH_NAM_OMX), true)
 
 LOCAL_PATH := $(call my-dir)
