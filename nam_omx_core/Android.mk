@@ -15,7 +15,7 @@ LOCAL_CFLAGS :=
 
 LOCAL_ARM_MODE := arm
 
-LOCAL_STATIC_LIBRARIES := libnamosal libnambanamomponent
+LOCAL_STATIC_LIBRARIES := libnamosal libnambasecomponent
 LOCAL_SHARED_LIBRARIES := libc libdl libcutils libutils
 
 LOCAL_C_INCLUDES := $(NAM_OMX_INC)/khronos \

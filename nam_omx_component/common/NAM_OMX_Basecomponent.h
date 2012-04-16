@@ -16,7 +16,7 @@
  */
 
 /*
- * @file       NAM_OMX_Banamomponent.h
+ * @file       NAM_OMX_Basecomponent.h
  * @brief
  * @author     SeungBeom Kim (sbcrux.kim@samsung.com)
  *             Yunji Kim (yunji.kim@samsung.com)
@@ -25,8 +25,8 @@
  *    2010.7.15 : Create
  */
 
-#ifndef NAM_OMX_BANAMOMP
-#define NAM_OMX_BANAMOMP
+#ifndef NAM_OMX_BASECOMP
+#define NAM_OMX_BASECOMP
 
 #include "NAM_OMX_Def.h"
 #include "OMX_Component.h"
@@ -85,7 +85,7 @@ typedef struct _NAM_OMX_TIMESTAPM
     OMX_U32   nStartFlags;
 } NAM_OMX_TIMESTAMP;
 
-typedef struct _NAM_OMX_BANAMOMPONENT
+typedef struct _NAM_OMX_BASECOMPONENT
 {
     OMX_STRING               componentName;
     OMX_VERSIONTYPE          componentVersion;
@@ -157,7 +157,7 @@ typedef struct _NAM_OMX_BANAMOMPONENT
 
     int (*nam_checkInputFrame)(unsigned char *pInputStream, int buffSize, OMX_U32 flag, OMX_BOOL bPreviousFrameEOF, OMX_BOOL *pbEndOfFrame);
 
-} NAM_OMX_BANAMOMPONENT;
+} NAM_OMX_BASECOMPONENT;
 
 
 #ifdef __cplusplus

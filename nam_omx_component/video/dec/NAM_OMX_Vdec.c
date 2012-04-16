@@ -32,7 +32,7 @@
 #include "NAM_OMX_Macros.h"
 #include "NAM_OSAL_Event.h"
 #include "NAM_OMX_Vdec.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 #include "NAM_OSAL_Thread.h"
 #include "color_space_convertor.h"
 
@@ -44,7 +44,7 @@
 
 inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
 {
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *namInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT      *namOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
 
@@ -90,7 +90,7 @@ OMX_ERRORTYPE NAM_OMX_UseBuffer(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BUFFERHEADERTYPE  *temp_bufferHeader = NULL;
     int                    i = 0;
@@ -111,7 +111,7 @@ OMX_ERRORTYPE NAM_OMX_UseBuffer(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     pNAMPort = &pNAMComponent->pNAMPort[nPortIndex];
     if (nPortIndex >= pNAMComponent->portParam.nPorts) {
@@ -179,7 +179,7 @@ OMX_ERRORTYPE NAM_OMX_AllocateBuffer(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BUFFERHEADERTYPE  *temp_bufferHeader = NULL;
     OMX_U8                *temp_buffer = NULL;
@@ -201,7 +201,7 @@ OMX_ERRORTYPE NAM_OMX_AllocateBuffer(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     pNAMPort = &pNAMComponent->pNAMPort[nPortIndex];
     if (nPortIndex >= pNAMComponent->portParam.nPorts) {
@@ -276,7 +276,7 @@ OMX_ERRORTYPE NAM_OMX_FreeBuffer(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BUFFERHEADERTYPE  *temp_bufferHeader = NULL;
     OMX_U8                *temp_buffer = NULL;
@@ -298,7 +298,7 @@ OMX_ERRORTYPE NAM_OMX_FreeBuffer(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMPort = &pNAMComponent->pNAMPort[nPortIndex];
 
     if (CHECK_PORT_TUNNELED(pNAMPort) && CHECK_PORT_BUFFER_SUPPLIER(pNAMPort)) {
@@ -394,7 +394,7 @@ EXIT:
     return ret;
 }
 
-OMX_BOOL NAM_Check_BufferProcess_State(NAM_OMX_BANAMOMPONENT *pNAMComponent)
+OMX_BOOL NAM_Check_BufferProcess_State(NAM_OMX_BASECOMPONENT *pNAMComponent)
 {
     if ((pNAMComponent->currentState == OMX_StateExecuting) &&
         (pNAMComponent->pNAMPort[INPUT_PORT_INDEX].portState == OMX_StateIdle) &&
@@ -410,7 +410,7 @@ OMX_BOOL NAM_Check_BufferProcess_State(NAM_OMX_BANAMOMPONENT *pNAMComponent)
 static OMX_ERRORTYPE NAM_InputBufferReturn(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *namOMXInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT      *namOMXOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_OMX_DATABUFFER    *dataBuffer = &pNAMComponent->namDataBuffer[INPUT_PORT_INDEX];
@@ -466,7 +466,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BANAMOMPONENT *pNAMComponent)
+OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
 {
     OMX_ERRORTYPE       ret = OMX_ErrorNone;
     NAM_OMX_BASEPORT   *pNAMPort = NULL;
@@ -519,7 +519,7 @@ EXIT:
 static OMX_ERRORTYPE NAM_OutputBufferReturn(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *namOMXInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT      *namOMXOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_OMX_DATABUFFER    *dataBuffer = &pNAMComponent->namDataBuffer[OUTPUT_PORT_INDEX];
@@ -576,7 +576,7 @@ EXIT:
     return ret;
 }
 
-OMX_ERRORTYPE NAM_OutputBufferGetQueue(NAM_OMX_BANAMOMPONENT *pNAMComponent)
+OMX_ERRORTYPE NAM_OutputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
 {
     OMX_ERRORTYPE       ret = OMX_ErrorNone;
     NAM_OMX_BASEPORT   *pNAMPort = NULL;
@@ -629,7 +629,7 @@ EXIT:
 static OMX_ERRORTYPE NAM_BufferReset(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 portIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     /* NAM_OMX_BASEPORT      *pNAMPort = &pNAMComponent->pNAMPort[portIndex]; */
     NAM_OMX_DATABUFFER    *dataBuffer = &pNAMComponent->namDataBuffer[portIndex];
     /* OMX_BUFFERHEADERTYPE  *bufferHeader = dataBuffer->bufferHeader; */
@@ -648,7 +648,7 @@ static OMX_ERRORTYPE NAM_BufferReset(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 p
 static OMX_ERRORTYPE NAM_DataReset(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 portIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     /* NAM_OMX_BASEPORT      *pNAMPort = &pNAMComponent->pNAMPort[portIndex]; */
     /* NAM_OMX_DATABUFFER    *dataBuffer = &pNAMComponent->namDataBuffer[portIndex]; */
     /* OMX_BUFFERHEADERTYPE  *bufferHeader = dataBuffer->bufferHeader; */
@@ -666,7 +666,7 @@ static OMX_ERRORTYPE NAM_DataReset(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 por
 OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_BOOL               ret = OMX_FALSE;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_DATABUFFER    *inputUseBuffer = &pNAMComponent->namDataBuffer[INPUT_PORT_INDEX];
     NAM_OMX_DATA          *inputData = &pNAMComponent->processData[INPUT_PORT_INDEX];
     OMX_U32                copySize = 0;
@@ -789,7 +789,7 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
 OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_BOOL               ret = OMX_FALSE;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_DATABUFFER    *outputUseBuffer = &pNAMComponent->namDataBuffer[OUTPUT_PORT_INDEX];
     NAM_OMX_DATA          *outputData = &pNAMComponent->processData[OUTPUT_PORT_INDEX];
     OMX_U32                copySize = 0;
@@ -862,7 +862,7 @@ OMX_ERRORTYPE NAM_OMX_BufferProcess(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *namInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT      *namOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_OMX_DATABUFFER    *inputUseBuffer = &pNAMComponent->namDataBuffer[INPUT_PORT_INDEX];
@@ -955,7 +955,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeGetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     FunctionIn();
@@ -974,7 +974,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeGetParameter(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
@@ -1117,7 +1117,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeSetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     FunctionIn();
@@ -1136,7 +1136,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeSetParameter(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
@@ -1209,7 +1209,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeSetParameter(
 
         ret = enableAndroidNativeBuffer(hComponent, ComponentParameterStructure);
         if (ret == OMX_ErrorNone) {
-            NAM_OMX_BANAMOMPONENT *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
+            NAM_OMX_BASECOMPONENT *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
             NAM_OMX_BASEPORT      *pNAMPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
             if (pNAMPort->bUseAndroidNativeBuffer) {
                 pNAMPort->portDefinition.nBufferCountActual = ANDROID_MAX_VIDEO_OUTPUTBUFFER_NUM;
@@ -1252,7 +1252,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentInit(OMX_IN OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     FunctionIn();
@@ -1281,7 +1281,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentInit(OMX_IN OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMComponent->bSaveFlagEOS = OMX_FALSE;
 
     /* Input port */
@@ -1350,7 +1350,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentDeinit(OMX_IN OMX_HANDLETYPE hComponen
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     int                    i = 0;
 
@@ -1370,7 +1370,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentDeinit(OMX_IN OMX_HANDLETYPE hComponen
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     for(i = 0; i < ALL_PORT_NUM; i++) {
         pNAMPort = &pNAMComponent->pNAMPort[i];

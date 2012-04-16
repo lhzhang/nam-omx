@@ -30,7 +30,7 @@
 #include <string.h>
 
 #include "NAM_OMX_Macros.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 #include "NAM_OMX_Baseport.h"
 #include "NAM_OMX_Venc.h"
 #include "library_register.h"
@@ -178,7 +178,7 @@ void H263PrintParams(SSBSIP_DMAI_ENC_H263_PARAM h263Param)
     NAM_OSAL_Log(NAM_LOG_TRACE, "FrameRate               : %d\n", h263Param.FrameRate);
 }
 
-void Set_Mpeg4Enc_Param(SSBSIP_DMAI_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BANAMOMPONENT *pNAMComponent)
+void Set_Mpeg4Enc_Param(SSBSIP_DMAI_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BASECOMPONENT *pNAMComponent)
 {
     NAM_OMX_BASEPORT    *pNAMInputPort = NULL;
     NAM_OMX_BASEPORT    *pNAMOutputPort = NULL;
@@ -262,7 +262,7 @@ void Set_Mpeg4Enc_Param(SSBSIP_DMAI_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BANAMO
     Mpeg4PrintParams(*pMpeg4Param);
 }
 
-void Set_H263Enc_Param(SSBSIP_DMAI_ENC_H263_PARAM *pH263Param, NAM_OMX_BANAMOMPONENT *pNAMComponent)
+void Set_H263Enc_Param(SSBSIP_DMAI_ENC_H263_PARAM *pH263Param, NAM_OMX_BASECOMPONENT *pNAMComponent)
 {
     NAM_OMX_BASEPORT    *pNAMInputPort = NULL;
     NAM_OMX_BASEPORT    *pNAMOutputPort = NULL;
@@ -346,7 +346,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -364,7 +364,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetParameter(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -542,7 +542,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_SetParameter(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -560,7 +560,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_SetParameter(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -719,7 +719,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetConfig(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -737,7 +737,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetConfig(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pComponentConfigStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -767,7 +767,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_SetConfig(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -785,7 +785,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_SetConfig(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid) {
         ret = OMX_ErrorInvalidState;
         goto EXIT;
@@ -810,7 +810,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetExtensionIndex(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -828,7 +828,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_GetExtensionIndex(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if ((cParameterName == NULL) || (pIndexType == NULL)) {
         ret = OMX_ErrorBadParameter;
@@ -863,7 +863,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_ComponentRoleEnum(
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     OMX_S32                  codecType;
 
     FunctionIn();
@@ -886,7 +886,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_ComponentRoleEnum(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -908,7 +908,7 @@ OMX_ERRORTYPE NAM_DMAI_EncodeThread(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_MPEG4ENC_HANDLE   *pMpeg4Enc = NULL;
 
     FunctionIn();
@@ -918,7 +918,7 @@ OMX_ERRORTYPE NAM_DMAI_EncodeThread(OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pMpeg4Enc = (NAM_MPEG4ENC_HANDLE *)pNAMComponent->hCodecHandle;
 
     while (pMpeg4Enc->NBEncThread.bExitEncodeThread == OMX_FALSE) {
@@ -941,7 +941,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_Init(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT          *pNAMInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT          *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_OMX_BASEPORT          *pNAMPort = NULL;
@@ -1044,7 +1044,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4ENC_HANDLE   *pMpeg4Enc = NULL;
     OMX_HANDLETYPE         hDMAIHandle = NULL;
 
@@ -1084,7 +1084,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_MPEG4ENC_HANDLE       *pMpeg4Enc = (NAM_MPEG4ENC_HANDLE *)pNAMComponent->hCodecHandle;
     OMX_HANDLETYPE             hDMAIHandle = pMpeg4Enc->hDMAIMpeg4Handle.hDMAIHandle;
     SSBSIP_DMAI_ENC_INPUT_INFO *pInputInfo = &(pMpeg4Enc->hDMAIMpeg4Handle.inputInfo);
@@ -1265,7 +1265,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_Mpeg4Enc_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT        *pInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT        *pOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
 
@@ -1309,7 +1309,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_OMX_BASEPORT        *pNAMPort = NULL;
     NAM_MPEG4ENC_HANDLE     *pMpeg4Enc = NULL;
     OMX_S32                  codecType = -1;
@@ -1338,7 +1338,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
         NAM_OSAL_Log(NAM_LOG_ERROR, "%s: NAM_OMX_VideoDecodeComponentInit error, ret: %X", __FUNCTION__, ret);
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMComponent->codecType = HW_VIDEO_CODEC;
 
     pNAMComponent->componentName = (OMX_STRING)NAM_OSAL_Malloc(MAX_OMX_COMPONENT_NAME_SIZE);
@@ -1481,7 +1481,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_MPEG4ENC_HANDLE     *pMpeg4Enc = NULL;
 
     FunctionIn();
@@ -1491,7 +1491,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
     pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     NAM_OSAL_Free(pNAMComponent->componentName);
     pNAMComponent->componentName = NULL;

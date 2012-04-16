@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include "NAM_OMX_Macros.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 #include "NAM_OMX_Baseport.h"
 #include "NAM_OMX_Venc.h"
 #include "library_register.h"
@@ -183,7 +183,7 @@ void H264PrintParams(SSBSIP_DMAI_ENC_H264_PARAM h264Arg)
     NAM_OSAL_Log(NAM_LOG_TRACE, "ActivityDisable         : %d\n", h264Arg.ActivityDisable);
 }
 
-void Set_H264ENC_Param(SSBSIP_DMAI_ENC_H264_PARAM *pH264Arg, NAM_OMX_BANAMOMPONENT *pNAMComponent)
+void Set_H264ENC_Param(SSBSIP_DMAI_ENC_H264_PARAM *pH264Arg, NAM_OMX_BASECOMPONENT *pNAMComponent)
 {
     NAM_OMX_BASEPORT          *pNAMInputPort = NULL;
     NAM_OMX_BASEPORT          *pNAMOutputPort = NULL;
@@ -285,7 +285,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_GetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -303,7 +303,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_GetParameter(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -438,7 +438,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_SetParameter(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -456,7 +456,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_SetParameter(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -573,7 +573,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_GetConfig(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -591,7 +591,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_GetConfig(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pComponentConfigStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -621,7 +621,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_SetConfig(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -639,7 +639,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_SetConfig(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid) {
         ret = OMX_ErrorInvalidState;
         goto EXIT;
@@ -664,7 +664,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_GetExtensionIndex(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -682,7 +682,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_GetExtensionIndex(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if ((cParameterName == NULL) || (pIndexType == NULL)) {
         ret = OMX_ErrorBadParameter;
@@ -714,7 +714,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Enc_ComponentRoleEnum(OMX_HANDLETYPE hComponent, OMX_
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -739,7 +739,7 @@ OMX_ERRORTYPE NAM_DMAI_EncodeThread(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_H264ENC_HANDLE    *pH264Enc = NULL;
 
     FunctionIn();
@@ -749,7 +749,7 @@ OMX_ERRORTYPE NAM_DMAI_EncodeThread(OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pH264Enc = (NAM_H264ENC_HANDLE *)pNAMComponent->hCodecHandle;
 
     while (pH264Enc->NBEncThread.bExitEncodeThread == OMX_FALSE) {
@@ -772,7 +772,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264Enc_Init(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT          *pNAMInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT          *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_H264ENC_HANDLE        *pH264Enc = NULL;
@@ -866,7 +866,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264Enc_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264ENC_HANDLE    *pH264Enc = NULL;
     OMX_PTR                hDMAIHandle = NULL;
 
@@ -906,7 +906,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264ENC_HANDLE        *pH264Enc = (NAM_H264ENC_HANDLE *)pNAMComponent->hCodecHandle;
     SSBSIP_DMAI_ENC_INPUT_INFO *pInputInfo = &pH264Enc->hDMAIH264Handle.inputInfo;
     SSBSIP_DMAI_ENC_OUTPUT_INFO outputInfo;
@@ -1097,7 +1097,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264Enc_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264ENC_HANDLE      *pH264Enc = (NAM_H264ENC_HANDLE *)pNAMComponent->hCodecHandle;
     NAM_OMX_BASEPORT        *pNAMInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT        *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
@@ -1146,7 +1146,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_OMX_BASEPORT        *pNAMPort = NULL;
     NAM_H264ENC_HANDLE      *pH264Enc = NULL;
     int i = 0;
@@ -1170,7 +1170,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
         NAM_OSAL_Log(NAM_LOG_ERROR, "OMX_Error, Line:%d", __LINE__);
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMComponent->codecType = HW_VIDEO_CODEC;
 
     pNAMComponent->componentName = (OMX_STRING)NAM_OSAL_Malloc(MAX_OMX_COMPONENT_NAME_SIZE);
@@ -1272,7 +1272,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_H264ENC_HANDLE      *pH264Enc = NULL;
 
     FunctionIn();
@@ -1282,7 +1282,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
     pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     NAM_OSAL_Free(pNAMComponent->componentName);
     pNAMComponent->componentName = NULL;

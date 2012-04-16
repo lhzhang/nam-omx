@@ -4,12 +4,12 @@ include $(CLEAR_VARS)
 LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := \
-	NAM_OMX_Banamomponent.c \
+	NAM_OMX_Basecomponent.c \
 	NAM_OMX_Baseport.c \
 	NAM_OMX_Resourcemanager.c
 
 
-LOCAL_MODULE := libnambanamomponent
+LOCAL_MODULE := libnambasecomponent
 
 LOCAL_CFLAGS :=
 

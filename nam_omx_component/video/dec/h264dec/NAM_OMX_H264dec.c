@@ -29,7 +29,7 @@
 #include <string.h>
 
 #include "NAM_OMX_Macros.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 #include "NAM_OMX_Baseport.h"
 #include "NAM_OMX_Vdec.h"
 #include "library_register.h"
@@ -183,7 +183,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_GetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -201,7 +201,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_GetParameter(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -336,7 +336,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_SetParameter(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -354,7 +354,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_SetParameter(
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid ) {
         ret = OMX_StateInvalid;
         goto EXIT;
@@ -530,7 +530,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_GetConfig(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -548,7 +548,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_GetConfig(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pComponentConfigStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -608,7 +608,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_SetConfig(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -626,7 +626,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_SetConfig(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pComponentConfigStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -665,7 +665,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_GetExtensionIndex(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -683,7 +683,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_GetExtensionIndex(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if ((cParameterName == NULL) || (pIndexType == NULL)) {
         ret = OMX_ErrorBadParameter;
@@ -723,7 +723,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_ComponentRoleEnum(OMX_HANDLETYPE hComponent, OMX_
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -748,7 +748,7 @@ OMX_ERRORTYPE NAM_DMAI_DecodeThread(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_H264DEC_HANDLE    *pH264Dec = NULL;
 
     FunctionIn();
@@ -758,7 +758,7 @@ OMX_ERRORTYPE NAM_DMAI_DecodeThread(OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
 
     while (pH264Dec->NBDecThread.bExitDecodeThread == OMX_FALSE) {
@@ -783,7 +783,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264DEC_HANDLE    *pH264Dec = NULL;
 
     OMX_PTR hDMAIHandle       = NULL;
@@ -856,7 +856,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264DEC_HANDLE    *pH264Dec = NULL;
     OMX_PTR                hDMAIHandle = NULL;
 
@@ -903,7 +903,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264DEC_HANDLE        *pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
     OMX_U32                    oneFrameSize = pInputData->dataLen;
 #if ENABLE_MFC
@@ -1265,7 +1265,7 @@ EXIT:
 OMX_ERRORTYPE NAM_DMAI_H264Dec_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData)
 {
     OMX_ERRORTYPE ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264DEC_HANDLE      *pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
     NAM_OMX_BASEPORT        *pNAMInputPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
     NAM_OMX_BASEPORT        *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
@@ -1314,7 +1314,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_OMX_BASEPORT        *pNAMPort = NULL;
     NAM_H264DEC_HANDLE      *pH264Dec = NULL;
     int i = 0;
@@ -1338,7 +1338,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
         NAM_OSAL_Log(NAM_LOG_ERROR, "OMX_Error, Line:%d", __LINE__);
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMComponent->codecType = HW_VIDEO_CODEC;
 
     pNAMComponent->componentName = (OMX_STRING)NAM_OSAL_Malloc(MAX_OMX_COMPONENT_NAME_SIZE);
@@ -1446,7 +1446,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE            ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE       *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT   *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_H264DEC_HANDLE      *pH264Dec = NULL;
 
     FunctionIn();
@@ -1456,7 +1456,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
         goto EXIT;
     }
     pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     NAM_OSAL_Free(pNAMComponent->componentName);
     pNAMComponent->componentName = NULL;

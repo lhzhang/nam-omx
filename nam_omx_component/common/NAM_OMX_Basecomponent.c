@@ -16,7 +16,7 @@
  */
 
 /*
- * @file       NAM_OMX_Banamomponent.c
+ * @file       NAM_OMX_Basecomponent.c
  * @brief
  * @author     SeungBeom Kim (sbcrux.kim@samsung.com)
  *             Yunji Kim (yunji.kim@samsung.com)
@@ -32,7 +32,7 @@
 #include "NAM_OSAL_Event.h"
 #include "NAM_OSAL_Thread.h"
 #include "NAM_OMX_Baseport.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 #include "NAM_OMX_Macros.h"
 
 #undef  NAM_LOG_TAG
@@ -75,7 +75,7 @@ OMX_ERRORTYPE NAM_OMX_GetComponentVersion(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     OMX_U32                compUUID[3];
 
     FunctionIn();
@@ -97,7 +97,7 @@ OMX_ERRORTYPE NAM_OMX_GetComponentVersion(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pNAMComponent->currentState == OMX_StateInvalid) {
         ret = OMX_ErrorInvalidState;
@@ -129,7 +129,7 @@ OMX_ERRORTYPE NAM_OMX_GetState (
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -147,7 +147,7 @@ OMX_ERRORTYPE NAM_OMX_GetState (
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     *pState = pNAMComponent->currentState;
     ret = OMX_ErrorNone;
@@ -162,7 +162,7 @@ static OMX_ERRORTYPE NAM_OMX_BufferProcessThread(OMX_PTR threadData)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_MESSAGE       *message = NULL;
 
     FunctionIn();
@@ -176,7 +176,7 @@ static OMX_ERRORTYPE NAM_OMX_BufferProcessThread(OMX_PTR threadData)
     if (ret != OMX_ErrorNone) {
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMComponent->nam_BufferProcess(pOMXComponent);
 
     NAM_OSAL_ThreadExit(NULL);
@@ -190,7 +190,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 messageParam)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_MESSAGE       *message;
     OMX_STATETYPE          destState = messageParam;
     OMX_STATETYPE          currentState = pNAMComponent->currentState;
@@ -491,7 +491,7 @@ static OMX_ERRORTYPE NAM_OMX_MessageHandlerThread(OMX_PTR threadData)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_MESSAGE       *message = NULL;
     OMX_U32                messageType = 0, portIndex = 0;
 
@@ -508,7 +508,7 @@ static OMX_ERRORTYPE NAM_OMX_MessageHandlerThread(OMX_PTR threadData)
         goto EXIT;
     }
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     while (pNAMComponent->bExitMessageHandlerThread != OMX_TRUE) {
         NAM_OSAL_SemaphoreWait(pNAMComponent->msgSemaphoreHandle);
@@ -552,7 +552,7 @@ EXIT:
     return ret;
 }
 
-static OMX_ERRORTYPE NAM_StateSet(NAM_OMX_BANAMOMPONENT *pNAMComponent, OMX_U32 nParam)
+static OMX_ERRORTYPE NAM_StateSet(NAM_OMX_BASECOMPONENT *pNAMComponent, OMX_U32 nParam)
 {
     OMX_U32 destState = nParam;
     OMX_U32 i = 0;
@@ -584,7 +584,7 @@ static OMX_ERRORTYPE NAM_StateSet(NAM_OMX_BANAMOMPONENT *pNAMComponent, OMX_U32 
     return OMX_ErrorNone;
 }
 
-static OMX_ERRORTYPE NAM_SetPortFlush(NAM_OMX_BANAMOMPONENT *pNAMComponent, OMX_U32 nParam)
+static OMX_ERRORTYPE NAM_SetPortFlush(NAM_OMX_BASECOMPONENT *pNAMComponent, OMX_U32 nParam)
 {
     OMX_ERRORTYPE     ret = OMX_ErrorNone;
     NAM_OMX_BASEPORT *pNAMPort = NULL;
@@ -621,7 +621,7 @@ EXIT:
     return ret;
 }
 
-static OMX_ERRORTYPE NAM_SetPortEnable(NAM_OMX_BANAMOMPONENT *pNAMComponent, OMX_U32 nParam)
+static OMX_ERRORTYPE NAM_SetPortEnable(NAM_OMX_BASECOMPONENT *pNAMComponent, OMX_U32 nParam)
 {
     OMX_ERRORTYPE     ret = OMX_ErrorNone;
     NAM_OMX_BASEPORT *pNAMPort = NULL;
@@ -664,7 +664,7 @@ EXIT:
 
 }
 
-static OMX_ERRORTYPE NAM_SetPortDisable(NAM_OMX_BANAMOMPONENT *pNAMComponent, OMX_U32 nParam)
+static OMX_ERRORTYPE NAM_SetPortDisable(NAM_OMX_BASECOMPONENT *pNAMComponent, OMX_U32 nParam)
 {
     OMX_ERRORTYPE     ret = OMX_ErrorNone;
     NAM_OMX_BASEPORT *pNAMPort = NULL;
@@ -702,7 +702,7 @@ EXIT:
     return ret;
 }
 
-static OMX_ERRORTYPE NAM_SetMarkBuffer(NAM_OMX_BANAMOMPONENT *pNAMComponent, OMX_U32 nParam)
+static OMX_ERRORTYPE NAM_SetMarkBuffer(NAM_OMX_BASECOMPONENT *pNAMComponent, OMX_U32 nParam)
 {
     OMX_ERRORTYPE     ret = OMX_ErrorNone;
     NAM_OMX_BASEPORT *pNAMPort = NULL;
@@ -727,7 +727,7 @@ EXIT:
 }
 
 static OMX_ERRORTYPE NAM_OMX_CommandQueue(
-    NAM_OMX_BANAMOMPONENT *pNAMComponent,
+    NAM_OMX_BASECOMPONENT *pNAMComponent,
     OMX_COMMANDTYPE        Cmd,
     OMX_U32                nParam,
     OMX_PTR                pCmdData)
@@ -762,7 +762,7 @@ OMX_ERRORTYPE NAM_OMX_SendCommand(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_MESSAGE       *message = NULL;
 
     FunctionIn();
@@ -781,7 +781,7 @@ OMX_ERRORTYPE NAM_OMX_SendCommand(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pNAMComponent->currentState == OMX_StateInvalid) {
         ret = OMX_ErrorInvalidState;
@@ -841,7 +841,7 @@ OMX_ERRORTYPE NAM_OMX_GetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -859,7 +859,7 @@ OMX_ERRORTYPE NAM_OMX_GetParameter(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (ComponentParameterStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -994,7 +994,7 @@ OMX_ERRORTYPE NAM_OMX_SetParameter(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -1012,7 +1012,7 @@ OMX_ERRORTYPE NAM_OMX_SetParameter(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (ComponentParameterStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -1190,7 +1190,7 @@ OMX_ERRORTYPE NAM_OMX_GetConfig(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -1208,7 +1208,7 @@ OMX_ERRORTYPE NAM_OMX_GetConfig(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pComponentConfigStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -1233,7 +1233,7 @@ OMX_ERRORTYPE NAM_OMX_SetConfig(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -1251,7 +1251,7 @@ OMX_ERRORTYPE NAM_OMX_SetConfig(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pComponentConfigStructure == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -1276,7 +1276,7 @@ OMX_ERRORTYPE NAM_OMX_GetExtensionIndex(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -1294,7 +1294,7 @@ OMX_ERRORTYPE NAM_OMX_GetExtensionIndex(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if ((cParameterName == NULL) || (pIndexType == NULL)) {
         ret = OMX_ErrorBadParameter;
@@ -1320,7 +1320,7 @@ OMX_ERRORTYPE NAM_OMX_SetCallbacks (
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -1338,7 +1338,7 @@ OMX_ERRORTYPE NAM_OMX_SetCallbacks (
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     if (pCallbacks == NULL) {
         ret = OMX_ErrorBadParameter;
@@ -1379,7 +1379,7 @@ OMX_ERRORTYPE NAM_OMX_BaseComponent_Constructor(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
@@ -1389,13 +1389,13 @@ OMX_ERRORTYPE NAM_OMX_BaseComponent_Constructor(
         goto EXIT;
     }
     pOMXComponent = (OMX_COMPONENTTYPE *)hComponent;
-    pNAMComponent = NAM_OSAL_Malloc(sizeof(NAM_OMX_BANAMOMPONENT));
+    pNAMComponent = NAM_OSAL_Malloc(sizeof(NAM_OMX_BASECOMPONENT));
     if (pNAMComponent == NULL) {
         ret = OMX_ErrorInsufficientResources;
         NAM_OSAL_Log(NAM_LOG_ERROR, "OMX_ErrorInsufficientResources, Line:%d", __LINE__);
         goto EXIT;
     }
-    NAM_OSAL_Memset(pNAMComponent, 0, sizeof(NAM_OMX_BANAMOMPONENT));
+    NAM_OSAL_Memset(pNAMComponent, 0, sizeof(NAM_OMX_BASECOMPONENT));
     pOMXComponent->pComponentPrivate = (OMX_PTR)pNAMComponent;
 
     ret = NAM_OSAL_SemaphoreCreate(&pNAMComponent->msgSemaphoreHandle);
@@ -1438,7 +1438,7 @@ OMX_ERRORTYPE NAM_OMX_BaseComponent_Destructor(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     OMX_U32                semaValue = 0;
 
     FunctionIn();
@@ -1457,7 +1457,7 @@ OMX_ERRORTYPE NAM_OMX_BaseComponent_Destructor(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     NAM_OMX_CommandQueue(pNAMComponent, NAM_OMX_CommandComponentDeInit, 0, NULL);
     NAM_OSAL_SleepMillinam(0);

@@ -38,7 +38,7 @@ extern "C" {
 #include "NAM_OSAL_Memory.h"
 #include "NAM_OSAL_Semaphore.h"
 #include "NAM_OSAL_Buffer.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 
 #define NAM_LOG_OFF
 #include "NAM_OSAL_Log.h"
@@ -152,7 +152,7 @@ OMX_ERRORTYPE enableAndroidNativeBuffer(OMX_HANDLETYPE hComponent, OMX_PTR Compo
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     EnableAndroidNativeBuffersParams *peanbp;
@@ -168,7 +168,7 @@ OMX_ERRORTYPE enableAndroidNativeBuffer(OMX_HANDLETYPE hComponent, OMX_PTR Compo
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     peanbp = (EnableAndroidNativeBuffersParams *)ComponentParameterStructure;
     pNAMPort = &pNAMComponent->pNAMPort[peanbp->nPortIndex];
 
@@ -193,7 +193,7 @@ OMX_ERRORTYPE getAndroidNativeBuffer(OMX_HANDLETYPE hComponent, OMX_PTR Componen
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     GetAndroidNativeBufferUsageParams *pganbp;
@@ -222,7 +222,7 @@ OMX_ERRORTYPE UseBufferANB(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BUFFERHEADERTYPE  *temp_bufferHeader = NULL;
     int                    i = 0;
@@ -238,7 +238,7 @@ OMX_ERRORTYPE UseBufferANB(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     pNAMPort = &pNAMComponent->pNAMPort[nPortIndex];
     if (nPortIndex >= pNAMComponent->portParam.nPorts) {
@@ -301,7 +301,7 @@ OMX_ERRORTYPE useAndroidNativeBuffer(OMX_HANDLETYPE hComponent, OMX_PTR Componen
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_U32                frameSize = 0;
     OMX_U32                bufWidth, bufHeight;
@@ -331,7 +331,7 @@ OMX_ERRORTYPE enableStoreMetaDataInBuffers(OMX_HANDLETYPE hComponent, OMX_PTR Co
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     StoreMetaDataInBuffersParams *pStoreMetaData;
@@ -347,7 +347,7 @@ OMX_ERRORTYPE enableStoreMetaDataInBuffers(OMX_HANDLETYPE hComponent, OMX_PTR Co
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pStoreMetaData = (StoreMetaDataInBuffersParams*)ComponentParameterStructure;
     pNAMPort = &pNAMComponent->pNAMPort[pStoreMetaData->nPortIndex];
 
@@ -379,7 +379,7 @@ OMX_ERRORTYPE preprocessMetaDataInBuffers(OMX_HANDLETYPE hComponent, OMX_BYTE pI
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_U32                type = 0;
 
@@ -394,7 +394,7 @@ OMX_ERRORTYPE preprocessMetaDataInBuffers(OMX_HANDLETYPE hComponent, OMX_BYTE pI
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pNAMPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
 
     type = getMetadataBufferType(pInputDataBuffer);

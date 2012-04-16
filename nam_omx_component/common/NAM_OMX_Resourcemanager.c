@@ -29,12 +29,11 @@
 #include <string.h>
 
 #include "NAM_OMX_Resourcemanager.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 
 #undef  NAM_LOG_TAG
 #define NAM_LOG_TAG    "NAM_RM"
-//#define NAM_LOG_OFF
-#define NAM_TRACE_ON
+#define NAM_LOG_OFF
 
 #include "NAM_OSAL_Log.h"
 
@@ -51,9 +50,9 @@ OMX_ERRORTYPE addElementList(NAM_OMX_RM_COMPONENT_LIST **ppList, OMX_COMPONENTTY
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
     NAM_OMX_RM_COMPONENT_LIST *pTempComp = NULL;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = NULL;
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (*ppList != NULL) {
         pTempComp = *ppList;
         while (pTempComp->pNext != NULL) {
@@ -161,9 +160,9 @@ EXIT:
 OMX_ERRORTYPE removeComponent(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateIdle) {
         (*(pNAMComponent->pCallbacks->EventHandler))
             (pOMXComponent, pNAMComponent->callbackData,
@@ -236,7 +235,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_Get_Resource(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = NULL;
     NAM_OMX_RM_COMPONENT_LIST *pComponentTemp = NULL;
     NAM_OMX_RM_COMPONENT_LIST *pComponentCandidate = NULL;
     int numElem = 0;
@@ -246,7 +245,7 @@ OMX_ERRORTYPE NAM_OMX_Get_Resource(OMX_COMPONENTTYPE *pOMXComponent)
 
     NAM_OSAL_MutexLock(ghVideoRMComponentListMutex);
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pComponentTemp = gpVideoRMComponentList;
     if (pNAMComponent->codecType == HW_VIDEO_CODEC) {
         if (pComponentTemp != NULL) {
@@ -298,7 +297,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_Release_Resource(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE              ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT     *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT     *pNAMComponent = NULL;
     NAM_OMX_RM_COMPONENT_LIST *pComponentTemp = NULL;
     OMX_COMPONENTTYPE         *pOMXWaitComponent = NULL;
     int numElem = 0;
@@ -307,7 +306,7 @@ OMX_ERRORTYPE NAM_OMX_Release_Resource(OMX_COMPONENTTYPE *pOMXComponent)
 
     NAM_OSAL_MutexLock(ghVideoRMComponentListMutex);
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     pComponentTemp = gpVideoRMWaitingList;
     if (pNAMComponent->codecType == HW_VIDEO_CODEC) {
         if (gpVideoRMComponentList == NULL) {
@@ -346,13 +345,13 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_In_WaitForResource(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
     NAM_OSAL_MutexLock(ghVideoRMComponentListMutex);
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->codecType == HW_VIDEO_CODEC)
         ret = addElementList(&gpVideoRMWaitingList, pOMXComponent);
 
@@ -366,13 +365,13 @@ OMX_ERRORTYPE NAM_OMX_In_WaitForResource(OMX_COMPONENTTYPE *pOMXComponent)
 OMX_ERRORTYPE NAM_OMX_Out_WaitForResource(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
 
     FunctionIn();
 
     NAM_OSAL_MutexLock(ghVideoRMComponentListMutex);
 
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->codecType == HW_VIDEO_CODEC)
         ret = removeElementList(&gpVideoRMWaitingList, pOMXComponent);
 

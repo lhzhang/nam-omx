@@ -35,7 +35,7 @@
 #include "NAM_OSAL_Mutex.h"
 
 #include "NAM_OMX_Baseport.h"
-#include "NAM_OMX_Banamomponent.h"
+#include "NAM_OMX_Basecomponent.h"
 
 #undef  NAM_LOG_TAG
 #define NAM_LOG_TAG    "NAM_BASE_PORT"
@@ -46,7 +46,7 @@
 OMX_ERRORTYPE NAM_OMX_FlushPort(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 portIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BUFFERHEADERTYPE  *bufferHeader = NULL;
     NAM_OMX_MESSAGE       *message = NULL;
@@ -141,7 +141,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_BufferFlushProcess(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 nPortIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_S32                portIndex = 0;
     OMX_U32                i = 0, cnt = 0;
@@ -162,7 +162,7 @@ OMX_ERRORTYPE NAM_OMX_BufferFlushProcess(OMX_COMPONENTTYPE *pOMXComponent, OMX_S
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     cnt = (nPortIndex == ALL_PORT_INDEX ) ? ALL_PORT_NUM : 1;
 
@@ -219,7 +219,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_BufferFlushProcessNoEvent(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 nPortIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_S32                portIndex = 0;
     OMX_U32                i = 0, cnt = 0;
@@ -240,7 +240,7 @@ OMX_ERRORTYPE NAM_OMX_BufferFlushProcessNoEvent(OMX_COMPONENTTYPE *pOMXComponent
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     cnt = (nPortIndex == ALL_PORT_INDEX ) ? ALL_PORT_NUM : 1;
 
@@ -291,7 +291,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_EnablePort(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 portIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_U32                i = 0, cnt = 0;
 
@@ -333,7 +333,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_PortEnableProcess(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 nPortIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     OMX_S32                portIndex = 0;
     OMX_U32                i = 0, cnt = 0;
 
@@ -352,7 +352,7 @@ OMX_ERRORTYPE NAM_OMX_PortEnableProcess(OMX_COMPONENTTYPE *pOMXComponent, OMX_S3
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     cnt = (nPortIndex == ALL_PORT_INDEX) ? ALL_PORT_NUM : 1;
 
@@ -387,7 +387,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_DisablePort(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 portIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_U32                i = 0, elemNum = 0;
     NAM_OMX_MESSAGE       *message;
@@ -438,7 +438,7 @@ EXIT:
 OMX_ERRORTYPE NAM_OMX_PortDisableProcess(OMX_COMPONENTTYPE *pOMXComponent, OMX_S32 nPortIndex)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     OMX_S32                portIndex = 0;
     OMX_U32                i = 0, cnt = 0;
     NAM_OMX_DATABUFFER      *flushBuffer = NULL;
@@ -458,7 +458,7 @@ OMX_ERRORTYPE NAM_OMX_PortDisableProcess(OMX_COMPONENTTYPE *pOMXComponent, OMX_S
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     cnt = (nPortIndex == ALL_PORT_INDEX ) ? ALL_PORT_NUM : 1;
 
@@ -527,7 +527,7 @@ OMX_ERRORTYPE NAM_OMX_EmptyThisBuffer(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BOOL               findBuffer = OMX_FALSE;
     NAM_OMX_MESSAGE       *message;
@@ -549,7 +549,7 @@ OMX_ERRORTYPE NAM_OMX_EmptyThisBuffer(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid) {
         ret = OMX_ErrorInvalidState;
         goto EXIT;
@@ -624,7 +624,7 @@ OMX_ERRORTYPE NAM_OMX_FillThisBuffer(
 {
     OMX_ERRORTYPE           ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     OMX_BOOL               findBuffer = OMX_FALSE;
     NAM_OMX_MESSAGE       *message;
@@ -646,7 +646,7 @@ OMX_ERRORTYPE NAM_OMX_FillThisBuffer(
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     if (pNAMComponent->currentState == OMX_StateInvalid) {
         ret = OMX_ErrorInvalidState;
         goto EXIT;
@@ -719,7 +719,7 @@ OMX_ERRORTYPE NAM_OMX_Port_Constructor(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
     NAM_OMX_BASEPORT      *pNAMInputPort = NULL;
     NAM_OMX_BASEPORT      *pNAMOutputPort = NULL;
@@ -743,7 +743,7 @@ OMX_ERRORTYPE NAM_OMX_Port_Constructor(OMX_HANDLETYPE hComponent)
         NAM_OSAL_Log(NAM_LOG_ERROR, "OMX_ErrorBadParameter, Line:%d", __LINE__);
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
 
     INIT_SET_SIZE_VERSION(&pNAMComponent->portParam, OMX_PORT_PARAM_TYPE);
     pNAMComponent->portParam.nPorts = ALL_PORT_NUM;
@@ -964,7 +964,7 @@ OMX_ERRORTYPE NAM_OMX_Port_Destructor(OMX_HANDLETYPE hComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     OMX_COMPONENTTYPE     *pOMXComponent = NULL;
-    NAM_OMX_BANAMOMPONENT *pNAMComponent = NULL;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = NULL;
     NAM_OMX_BASEPORT      *pNAMPort = NULL;
 
     FunctionIn();
@@ -984,7 +984,7 @@ OMX_ERRORTYPE NAM_OMX_Port_Destructor(OMX_HANDLETYPE hComponent)
         ret = OMX_ErrorBadParameter;
         goto EXIT;
     }
-    pNAMComponent = (NAM_OMX_BANAMOMPONENT *)pOMXComponent->pComponentPrivate;
+    pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     for (i = 0; i < ALL_PORT_NUM; i++) {
         pNAMPort = &pNAMComponent->pNAMPort[i];
 
