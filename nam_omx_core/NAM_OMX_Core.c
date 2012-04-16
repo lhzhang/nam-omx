@@ -37,7 +37,8 @@
 
 #undef  NAM_LOG_TAG
 #define NAM_LOG_TAG    "NAM_OMX_CORE"
-#define NAM_LOG_OFF
+//#define NAM_LOG_OFF
+#define NAM_TRACE_ON
 #include "NAM_OSAL_Log.h"
 
 
