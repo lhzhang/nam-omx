@@ -791,6 +791,8 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     OMX_PTR pStreamBuffer    = NULL;
     OMX_PTR pStreamPhyBuffer = NULL;
 
+    FunctionIn();
+
     pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
     pH264Dec->hDMAIH264Handle.bConfiguredDMAI = OMX_FALSE;
     pNAMComponent->bUseFlagEOF = OMX_FALSE;
@@ -850,6 +852,8 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     pNAMComponent->getAllDelayBuffer = OMX_FALSE;
 
 EXIT:
+    FunctionOut();
+
     return ret;
 }
 
