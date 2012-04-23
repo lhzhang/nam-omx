@@ -178,7 +178,7 @@ OMX_ERRORTYPE enableAndroidNativeBuffer(OMX_HANDLETYPE hComponent, OMX_PTR Compo
     } else {
         NAM_OSAL_Log(NAM_LOG_TRACE, "enable AndroidNativeBuffer");
         pNAMPort->bUseAndroidNativeBuffer = OMX_TRUE;
-        pNAMPort->portDefinition.format.video.eColorFormat = (OMX_COLOR_FORMATTYPE)OMX_NAM_COLOR_FormatANBYUV420SemiPlanar;
+        pNAMPort->portDefinition.format.video.eColorFormat = (OMX_COLOR_FORMATTYPE)OMX_SEC_COLOR_FormatANBYUV420SemiPlanar;
     }
 
     ret = OMX_ErrorNone;

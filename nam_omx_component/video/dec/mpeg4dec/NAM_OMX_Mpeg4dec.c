@@ -610,8 +610,8 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4Dec_SetParameter(
             switch (pNAMOutputPort->portDefinition.format.video.eColorFormat) {
             case OMX_COLOR_FormatYUV420Planar:
             case OMX_COLOR_FormatYUV420SemiPlanar:
-            case OMX_NAM_COLOR_FormatNV12TPhysicalAddress:
-            case OMX_NAM_COLOR_FormatANBYUV420SemiPlanar:
+            case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
+            case OMX_SEC_COLOR_FormatANBYUV420SemiPlanar:
                 pNAMOutputPort->portDefinition.nBufferSize = (width * height * 3) / 2;
                 break;
             default:
@@ -1331,7 +1331,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DA
         }
 #endif
         if ((pMpeg4Dec->hDMAIMpeg4Handle.bThumbnailMode == OMX_FALSE) &&
-            (pNAMOutputPort->portDefinition.format.video.eColorFormat == OMX_NAM_COLOR_FormatNV12TPhysicalAddress))
+            (pNAMOutputPort->portDefinition.format.video.eColorFormat == OMX_SEC_COLOR_FormatNV12TPhysicalAddress))
         {
             /* if use Post copy address structure */
             NAM_OSAL_Memcpy(pOutputBuf[0], &frameSize, sizeof(frameSize));
@@ -1360,7 +1360,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DA
             }
                 break;
             case OMX_COLOR_FormatYUV420SemiPlanar:
-            case OMX_NAM_COLOR_FormatANBYUV420SemiPlanar:
+            case OMX_SEC_COLOR_FormatANBYUV420SemiPlanar:
             default:
             {
                 NAM_OSAL_Log(NAM_LOG_TRACE, "YUV420SP out");

@@ -219,7 +219,7 @@ void Set_Mpeg4Enc_Param(SSBSIP_DMAI_ENC_MPEG4_PARAM *pMpeg4Param, NAM_OMX_BASECO
     case OMX_COLOR_FormatYUV420SemiPlanar:
         pMpeg4Param->FrameMap = NV12_LINEAR;
         break;
-    case OMX_NAM_COLOR_FormatNV12TPhysicalAddress:
+    case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
     default:
         pMpeg4Param->FrameMap = NV12_TILE;
         break;
@@ -296,7 +296,7 @@ void Set_H263Enc_Param(SSBSIP_DMAI_ENC_H263_PARAM *pH263Param, NAM_OMX_BASECOMPO
     case OMX_COLOR_FormatYUV420SemiPlanar:
         pH263Param->FrameMap = NV12_LINEAR;
         break;
-    case OMX_NAM_COLOR_FormatNV12TPhysicalAddress:
+    case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
     default:
         pH263Param->FrameMap = NV12_TILE;
         break;
@@ -1151,7 +1151,7 @@ OMX_ERRORTYPE NAM_DMAI_Mpeg4_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DA
         pInputInfo->CPhyAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CPhyAddr;
         pInputInfo->YVirAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].YVirAddr;
         pInputInfo->CVirAddr = pMpeg4Enc->DMAIEncInputBuffer[pMpeg4Enc->indexInputBuffer].CVirAddr;
-    } else if (pNAMPort->portDefinition.format.video.eColorFormat == OMX_NAM_COLOR_FormatNV12TPhysicalAddress) {
+    } else if (pNAMPort->portDefinition.format.video.eColorFormat == OMX_SEC_COLOR_FormatNV12TPhysicalAddress) {
         NAM_OSAL_Memcpy(&addrInfo.pAddrY, pInputData->dataBuffer, sizeof(addrInfo.pAddrY));
         NAM_OSAL_Memcpy(&addrInfo.pAddrC, pInputData->dataBuffer + sizeof(addrInfo.pAddrY), sizeof(addrInfo.pAddrC));
         pInputInfo->YPhyAddr = addrInfo.pAddrY;

@@ -235,7 +235,7 @@ void Set_H264ENC_Param(SSBSIP_DMAI_ENC_H264_PARAM *pH264Arg, NAM_OMX_BASECOMPONE
     case OMX_COLOR_FormatYUV420SemiPlanar:
         pH264Arg->FrameMap = NV12_LINEAR;
         break;
-    case OMX_NAM_COLOR_FormatNV12TPhysicalAddress:
+    case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
     default:
         pH264Arg->FrameMap = NV12_TILE;
         break;
@@ -981,7 +981,7 @@ OMX_ERRORTYPE NAM_DMAI_H264_Encode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pInputInfo->CPhyAddr = pH264Enc->DMAIEncInputBuffer[pH264Enc->indexInputBuffer].CPhyAddr;
         pInputInfo->YVirAddr = pH264Enc->DMAIEncInputBuffer[pH264Enc->indexInputBuffer].YVirAddr;
         pInputInfo->CVirAddr = pH264Enc->DMAIEncInputBuffer[pH264Enc->indexInputBuffer].CVirAddr;
-    } else if (pNAMPort->portDefinition.format.video.eColorFormat == OMX_NAM_COLOR_FormatNV12TPhysicalAddress) {
+    } else if (pNAMPort->portDefinition.format.video.eColorFormat == OMX_SEC_COLOR_FormatNV12TPhysicalAddress) {
         NAM_OSAL_Memcpy(&addrInfo.pAddrY, pInputData->dataBuffer, sizeof(addrInfo.pAddrY));
         NAM_OSAL_Memcpy(&addrInfo.pAddrC, pInputData->dataBuffer + sizeof(addrInfo.pAddrY), sizeof(addrInfo.pAddrC));
         pInputInfo->YPhyAddr = addrInfo.pAddrY;

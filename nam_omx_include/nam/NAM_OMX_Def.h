@@ -108,9 +108,9 @@ typedef enum _NAM_OMX_TRANS_STATETYPE {
 } NAM_OMX_TRANS_STATETYPE;
 
 typedef enum _NAM_OMX_COLOR_FORMATTYPE {
-    OMX_NAM_COLOR_FormatNV12TPhysicalAddress = 0x7F000001, /**< Reserved region for introducing Vendor Extensions */
+    OMX_SEC_COLOR_FormatNV12TPhysicalAddress = 0x7F000001, /**< Reserved region for introducing Vendor Extensions */
     /* for Android Native Window */
-    OMX_NAM_COLOR_FormatANBYUV420SemiPlanar = 0x100,
+    OMX_SEC_COLOR_FormatANBYUV420SemiPlanar = 0x100,
     /* for Android surface texture encode */
     OMX_COLOR_FormatAndroidOpaque = 0x7F000789
 }NAM_OMX_COLOR_FORMATTYPE;

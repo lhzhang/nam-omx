@@ -68,7 +68,7 @@ inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
         switch(namOutputPort->portDefinition.format.video.eColorFormat) {
         case OMX_COLOR_FormatYUV420Planar:
         case OMX_COLOR_FormatYUV420SemiPlanar:
-        case OMX_NAM_COLOR_FormatANBYUV420SemiPlanar:
+        case OMX_SEC_COLOR_FormatANBYUV420SemiPlanar:
             if (width && height)
                 namOutputPort->portDefinition.nBufferSize = (width * height * 3) / 2;
             break;
@@ -1046,10 +1046,11 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeGetParameter(
             portDefinition = &pNAMPort->portDefinition;
 
             switch (index) {
+#if 0
             case supportFormat_0:
                 portFormat->eCompressionFormat = OMX_VIDEO_CodingUnused;
                 portFormat->eColorFormat       = OMX_COLOR_FormatYUV420Planar;//OMX_COLOR_FormatYUV420SemiPlanar;
-                portFormat->xFramerate           = portDefinition->format.video.xFramerate;
+                portFormat->xFramerate         = portDefinition->format.video.xFramerate;
                 break;
             case supportFormat_1:
                 portFormat->eCompressionFormat = OMX_VIDEO_CodingUnused;
@@ -1058,9 +1059,21 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeGetParameter(
                 break;
             case supportFormat_2:
                 portFormat->eCompressionFormat = OMX_VIDEO_CodingUnused;
-                portFormat->eColorFormat       = OMX_NAM_COLOR_FormatNV12TPhysicalAddress;
-                portFormat->xFramerate           = portDefinition->format.video.xFramerate;
+                portFormat->eColorFormat       = OMX_SEC_COLOR_FormatNV12TPhysicalAddress;
+                portFormat->xFramerate         = portDefinition->format.video.xFramerate;
                 break;
+#endif
+            // the case for TI
+            // case supportFormat_3:
+            case supportFormat_0:
+                portFormat->eCompressionFormat = OMX_VIDEO_CodingUnused;
+                portFormat->eColorFormat       = OMX_COLOR_FormatCbYCrY;	// XDM_YUV_422ILE
+                portFormat->xFramerate         = portDefinition->format.video.xFramerate;
+                break;
+            defaut:
+                NAM_OSAL_Log(NAM_LOG_ERROR, "OMX_Error, NAM don't support the ColorFormat. Line:%d", __LINE__);
+                ret = OMX_ErrorBadParameter;
+                goto EXIT;
             }
         }
         ret = OMX_ErrorNone;

@@ -454,9 +454,13 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_SetParameter(
             switch (pNAMOutputPort->portDefinition.format.video.eColorFormat) {
             case OMX_COLOR_FormatYUV420Planar:
             case OMX_COLOR_FormatYUV420SemiPlanar:
-            case OMX_NAM_COLOR_FormatNV12TPhysicalAddress:
-            case OMX_NAM_COLOR_FormatANBYUV420SemiPlanar:
+            case OMX_SEC_COLOR_FormatNV12TPhysicalAddress:
+            case OMX_SEC_COLOR_FormatANBYUV420SemiPlanar:
                 pNAMOutputPort->portDefinition.nBufferSize = (width * height * 3) / 2;
+                break;
+            case OMX_COLOR_FormatCbYCrY:
+		// VIDDEC_COLORFORMAT422, or XDM_YUV_422ILE
+                pNAMOutputPort->portDefinition.nBufferSize = width * height * 2;
                 break;
             default:
                 NAM_OSAL_Log(NAM_LOG_ERROR, "Color format is not support!! use default YUV size!!");
@@ -1202,7 +1206,7 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         }
 #endif
         if ((pH264Dec->hDMAIH264Handle.bThumbnailMode == OMX_FALSE) &&
-            (pNAMOutputPort->portDefinition.format.video.eColorFormat == OMX_NAM_COLOR_FormatNV12TPhysicalAddress))
+            (pNAMOutputPort->portDefinition.format.video.eColorFormat == OMX_SEC_COLOR_FormatNV12TPhysicalAddress))
         {
             /* if use Post copy address structure */
             NAM_OSAL_Memcpy(pOutputBuf[0], &frameSize, sizeof(frameSize));
@@ -1231,7 +1235,7 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             }
                 break;
             case OMX_COLOR_FormatYUV420SemiPlanar:
-            case OMX_NAM_COLOR_FormatANBYUV420SemiPlanar:
+            case OMX_SEC_COLOR_FormatANBYUV420SemiPlanar:
             default:
             {
                 NAM_OSAL_Log(NAM_LOG_TRACE, "YUV420SP out");

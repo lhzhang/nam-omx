@@ -34,20 +34,61 @@
 #include "NAM_OSAL_Queue.h"
 #include "NAM_OMX_Baseport.h"
 
+
+///////////////////////////////////////////////////////////////////////////////
+// constants definitions 
+
+/* ...desired input buffer size */
+#define OMX_DSP_INPUT_BUFFER_SIZE       65536
+
+/* ...desired amount of input buffers */
+#define OMX_DSP_INPUT_BUFFER_NUMBER     4
+
+/* ...required amount of output port buffers - display holds 3 buffers */
+#define OMX_DSP_OUTPUT_BUFFER_NUMBER    6
+
+/* num of output port buffers for 720P codecs */
+#define OMX_DSP_OUTPUT_BUFFER_NUMBER_HP 5
+
+/* num of DSP decoder internal output buffers (BufTab)
+ * it might be more than the number of output port buffers,
+ * if the codec holds more than 1 buffer */
+#define OMX_DSP_OUTPUT_BUFTAB_NUMBER    5
+
+// DSP engine support
+
+/* ...buffer used by codec */
+#define OMX_DSP_CODEC_MASK              (1 << 0)
+
+/* ...buffer used by display */
+#define OMX_DSP_DISPLAY_MASK            (1 << 1)
+
+///////////////////////////////////////////////////////////////////////////////
+
 #define MAX_VIDEO_INPUTBUFFER_NUM    5
-#define MAX_VIDEO_OUTPUTBUFFER_NUM   2
+// MAX_VIDEO_OUTPUTBUFFER_NUM = OMX_DSP_OUTPUT_BUFFER_NUMBER_HP
+// #define MAX_VIDEO_OUTPUTBUFFER_NUM   2
+#define MAX_VIDEO_OUTPUTBUFFER_NUM   5
 
 #define DEFAULT_FRAME_WIDTH          176
 #define DEFAULT_FRAME_HEIGHT         144
 
 #define DEFAULT_VIDEO_INPUT_BUFFER_SIZE    ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT) * 2)
-#define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT * 3) / 2)
+
+// For TI OMX_COLOR_FormatCbYCrY
+//#define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT * 3) / 2)
+#define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT) * 2)
 
 #define DMAI_INPUT_BUFFER_NUM_MAX         2
-#define DEFAULT_DMAI_INPUT_BUFFER_SIZE    ((1280 * 720 * 3) / 2)
+
+// For TI OMX_COLOR_FormatCbYCrY
+#define DEFAULT_DMAI_INPUT_BUFFER_SIZE    (1280 * 720 * 2)
 
 #define INPUT_PORT_SUPPORTFORMAT_NUM_MAX    1
-#define OUTPUT_PORT_SUPPORTFORMAT_NUM_MAX   3
+
+//#define OUTPUT_PORT_SUPPORTFORMAT_NUM_MAX   3
+// only OMX_COLOR_FormatCbYCrY
+#define OUTPUT_PORT_SUPPORTFORMAT_NUM_MAX   1
 
 #ifdef USE_ANDROID_EXTENSION
 #define ANDROID_MAX_VIDEO_OUTPUTBUFFER_NUM   1

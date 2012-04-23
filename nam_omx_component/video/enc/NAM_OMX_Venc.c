@@ -748,7 +748,7 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
         if (((inputData->allocSize) - (inputData->dataLen)) >= copySize) {
             NAM_OMX_BASEPORT *pNAMPort = &pNAMComponent->pNAMPort[INPUT_PORT_INDEX];
 
-            if ((pNAMPort->portDefinition.format.video.eColorFormat != OMX_NAM_COLOR_FormatNV12TPhysicalAddress) &&
+            if ((pNAMPort->portDefinition.format.video.eColorFormat != OMX_SEC_COLOR_FormatNV12TPhysicalAddress) &&
                 (pNAMPort->bStoreMetaDataInBuffer == OMX_FALSE)) {
                 if (flagEOF == OMX_TRUE) {
                     OMX_U32 width, height;
@@ -1105,7 +1105,7 @@ OMX_ERRORTYPE NAM_OMX_VideoEncodeGetParameter(
                 break;
             case supportFormat_2:
                 portFormat->eCompressionFormat = OMX_VIDEO_CodingUnused;
-                portFormat->eColorFormat       = OMX_NAM_COLOR_FormatNV12TPhysicalAddress;
+                portFormat->eColorFormat       = OMX_SEC_COLOR_FormatNV12TPhysicalAddress;
                 portFormat->xFramerate         = portDefinition->format.video.xFramerate;
                 break;
 #ifdef USE_ANDROID_EXTENSION
