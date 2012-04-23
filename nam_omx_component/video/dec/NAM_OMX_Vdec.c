@@ -72,6 +72,10 @@ inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
             if (width && height)
                 namOutputPort->portDefinition.nBufferSize = (width * height * 3) / 2;
             break;
+        case OMX_COLOR_FormatCbYCrY:
+            if (width && height)
+                namOutputPort->portDefinition.nBufferSize = width * height * 2;
+            break;
         default:
             if (width && height)
                 namOutputPort->portDefinition.nBufferSize = width * height * 2;
