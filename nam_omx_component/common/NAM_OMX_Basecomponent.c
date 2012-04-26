@@ -224,7 +224,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U3
         NAM_OMX_Release_Resource(pOMXComponent);
     }
 
-    NAM_OSAL_Log(NAM_LOG_TRACE, "destState: %d", destState);
+    NAM_OSAL_Log(NAM_LOG_TRACE, "currentState: %d, destState: %d", currentState, destState);
 
     switch (destState) {
     case OMX_StateInvalid:
