@@ -516,7 +516,7 @@ static OMX_ERRORTYPE NAM_OMX_MessageHandlerThread(OMX_PTR threadData)
         message = (NAM_OMX_MESSAGE *)NAM_OSAL_Dequeue(&pNAMComponent->messageQ);
         if (message != NULL) {
             messageType = message->messageType;
-            NAM_OSAL_Log(NAM_LOG_TRACE, "message is arrived, messageType: %d", messageType);
+            NAM_OSAL_Log(NAM_LOG_TRACE, "message is arrived, messageType: 0x%0X", messageType);
             switch (messageType) {
             case OMX_CommandStateSet:
                 ret = NAM_OMX_ComponentStateSet(pOMXComponent, message->messageParam);
