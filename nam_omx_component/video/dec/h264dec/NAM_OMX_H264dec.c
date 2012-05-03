@@ -806,19 +806,21 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     /* DMAI(Multi Function Codec) decoder and CMM(Codec Memory Management) driver open */
     SSBIP_DMAI_BUFFER_TYPE buf_type = CACHE;
     hDMAIHandle = (OMX_PTR)SsbSipDmaiDecOpen(&buf_type);
-#endif
     if (hDMAIHandle == NULL) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
+#endif
     pH264Dec->hDMAIH264Handle.hDMAIHandle = hDMAIHandle;
 
+#if ENABLE_MFC
     /* Allocate decoder's input buffer */
     pStreamBuffer = SsbSipDmaiDecGetInBuf(hDMAIHandle, &pStreamPhyBuffer, DEFAULT_DMAI_INPUT_BUFFER_SIZE * DMAI_INPUT_BUFFER_NUM_MAX);
     if (pStreamBuffer == NULL) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
+#endif
 
     pH264Dec->DMAIDecInputBuffer[0].VirAddr = pStreamBuffer;
     pH264Dec->DMAIDecInputBuffer[0].PhyAddr = pStreamPhyBuffer;
