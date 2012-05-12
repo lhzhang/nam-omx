@@ -328,6 +328,17 @@ OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U3
     case OMX_StateIdle:
         switch (currentState) {
         case OMX_StateLoaded:
+            NAM_OSAL_Log(NAM_LOG_TRACE, "nam_dmai_componentInit start");
+            ret = pNAMComponent->nam_dmai_componentInit(pOMXComponent);
+            if (ret != OMX_ErrorNone) {
+                NAM_OSAL_Log(NAM_LOG_TRACE, "nam_dmai_componentInit end error");
+                /*
+                 * if (CHECK_PORT_TUNNELED == OMX_TRUE) thenTunnel Buffer Free
+                 */
+                goto EXIT;
+            }
+            NAM_OSAL_Log(NAM_LOG_TRACE, "nam_dmai_componentInit end ok");
+
             NAM_OSAL_Log(NAM_LOG_TRACE, "load Resource start");
             for (i = 0; i < pNAMComponent->portParam.nPorts; i++) {
                 pNAMPort = (pNAMComponent->pNAMPort + i);
@@ -349,16 +360,7 @@ OMX_ERRORTYPE NAM_OMX_ComponentStateSet(OMX_COMPONENTTYPE *pOMXComponent, OMX_U3
                 }
             }
             NAM_OSAL_Log(NAM_LOG_TRACE, "load Resource end ok ");
-            NAM_OSAL_Log(NAM_LOG_TRACE, "nam_dmai_componentInit start");
-            ret = pNAMComponent->nam_dmai_componentInit(pOMXComponent);
-            if (ret != OMX_ErrorNone) {
-                NAM_OSAL_Log(NAM_LOG_TRACE, "nam_dmai_componentInit end error");
-                /*
-                 * if (CHECK_PORT_TUNNELED == OMX_TRUE) thenTunnel Buffer Free
-                 */
-                goto EXIT;
-            }
-            NAM_OSAL_Log(NAM_LOG_TRACE, "nam_dmai_componentInit end ok");
+
             pNAMComponent->bExitBufferProcessThread = OMX_FALSE;
             NAM_OSAL_SignalCreate(&pNAMComponent->pauseEvent);
             for (i = 0; i < ALL_PORT_NUM; i++) {

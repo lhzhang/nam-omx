@@ -1,5 +1,5 @@
 /*******************************************************************************
- * iface.h
+ * ticodec.cpp
  *
  * Simple interface for Android mediaserver to open Codec Engine.  
  *
@@ -18,25 +18,25 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef __IFACE_H
-#define __IFACE_H
+#include "ticodec.h"
 
-#include <xdc/std.h>
-#include <ti/sdo/ce/Engine.h>
-#include <ti/sdo/ce/CERuntime.h>
-#include <ti/sdo/dmai/Dmai.h>
-
-class InterfaceClass
+void ticodec()
 {
-public:
-    InterfaceClass();
-    ~InterfaceClass();
-
-    Engine_Handle GetDSPHandle(void);
-    void          FreeDSPHandle(Engine_Handle h);
-
-    /* For testing/debugging only, to-be-removed */
-    void           Adec(void);
-};
-
-#endif /* __IFACE_H */
+    Dmai_init();
+    Cpu_getDevice(NULL, NULL);
+    Vdec2_create(NULL, NULL, NULL, NULL);
+    Vdec2_getInBufSize(NULL);
+    Buffer_create(0, NULL);
+    BufTab_create(0, 0, NULL);
+    Buffer_getUserPtr(NULL);
+    Vdec2_getOutBufSize(NULL);
+    BufferGfx_calcLineLength(0, (ColorSpace_Type)0);
+    BufferGfx_getBufferAttrs(NULL);
+    Vdec2_setBufTab(NULL, NULL);
+    Vdec2_delete(NULL);
+    Buffer_delete(NULL);
+    BufTab_delete(NULL);
+    BufTab_freeAll(NULL);
+    BufTab_collapse(NULL);
+    Vdec2_process(NULL, NULL, NULL);
+}

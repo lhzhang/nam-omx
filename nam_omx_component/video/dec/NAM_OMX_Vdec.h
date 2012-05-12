@@ -79,7 +79,7 @@
 //#define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT * 3) / 2)
 #define DEFAULT_VIDEO_OUTPUT_BUFFER_SIZE   ((DEFAULT_FRAME_WIDTH * DEFAULT_FRAME_HEIGHT) * 2)
 
-#define DMAI_INPUT_BUFFER_NUM_MAX         2
+#define DMAI_INPUT_BUFFER_NUM_MAX         1
 
 // For TI OMX_COLOR_FormatCbYCrY
 #define DEFAULT_DMAI_INPUT_BUFFER_SIZE    (1280 * 720 * 2)
@@ -113,7 +113,6 @@ typedef struct _NAM_DMAI_NBDEC_THREAD
 
 typedef struct _DMAI_DEC_INPUT_BUFFER
 {
-    void *PhyAddr;      // physical address
     void *VirAddr;      // virtual address
     int   bufferSize;   // input buffer alloc size
     int   dataSize;     // Data length

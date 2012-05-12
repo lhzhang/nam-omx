@@ -225,11 +225,24 @@ OMX_ERRORTYPE NAM_OMX_AllocateBuffer(
         goto EXIT;
     }
 
+#if 1
     temp_buffer = NAM_OSAL_Malloc(sizeof(OMX_U8) * nSizeBytes);
     if (temp_buffer == NULL) {
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
+#endif
+
+#if 0
+     pNAMPort->assignedBufferNum++;
+
+     ret = pNAMComponent->nam_AllocateBuffer(pOMXComponent, nPortIndex);
+     if(ret == OMX_ErrorInsufficientResources) {
+        goto EXIT;
+     }
+
+     temp_buffer = 
+#endif
 
     temp_bufferHeader = (OMX_BUFFERHEADERTYPE *)NAM_OSAL_Malloc(sizeof(OMX_BUFFERHEADERTYPE));
     if (temp_bufferHeader == NULL) {
@@ -346,7 +359,7 @@ OMX_ERRORTYPE NAM_OMX_FreeBuffer(
 EXIT:
     if (ret == OMX_ErrorNone) {
         if ( pNAMPort->assignedBufferNum == 0 ) {
-            NAM_OSAL_Log(NAM_LOG_TRACE, "pNAMPort->unloadedResource signal set");
+            NAM_OSAL_Log(NAM_LOG_TRACE, "pNAMPort->unloadedResource semaphore post");
             /* NAM_OSAL_MutexLock(pNAMComponent->compMutex); */
             NAM_OSAL_SemaphorePost(pNAMPort->unloadedResource);
             /* NAM_OSAL_MutexUnlock(pNAMComponent->compMutex); */

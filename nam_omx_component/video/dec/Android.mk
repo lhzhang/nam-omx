@@ -13,8 +13,14 @@ LOCAL_C_INCLUDES := $(NAM_OMX_INC)/khronos \
 	$(NAM_OMX_TOP)/nam_osal \
 	$(NAM_OMX_TOP)/nam_omx_core \
 	$(NAM_OMX_COMPONENT)/common \
-	$(NAM_OMX_COMPONENT)/video/dec
+	$(NAM_OMX_COMPONENT)/video/dec \
+	$(OMX_XDCPATH) \
+	$(NAM_OMX_TOP)/nam_codecs/ti 
 
 LOCAL_C_INCLUDES += $(NAM_OMX_TOP)/nam_codecs/video/dm3730/include
+
+LOCAL_CFLAGS := -Dxdc_target_types__=gnu/targets/arm/std.h
+
+LOCAL_SHARED_LIBRARIES := libcutils libutils libticodec
 
 include $(BUILD_STATIC_LIBRARY)

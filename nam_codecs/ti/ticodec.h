@@ -1,5 +1,5 @@
 /*******************************************************************************
- * iface.h
+ * ticodec.h
  *
  * Simple interface for Android mediaserver to open Codec Engine.  
  *
@@ -18,14 +18,24 @@
  * limitations under the License.
  ******************************************************************************/
 
-#ifndef __TI_DMAI_IFACE_H
-#define __TI_DMAI_IFACE_H
+#ifndef __TICODEC_H
+#define __TICODEC_H
 
-#include "ticodec.h"
+/* DMAI headers */
+#include <xdc/std.h>
+#include <ti/sdo/ce/Engine.h>
+#include <ti/sdo/ce/CERuntime.h>
+#include <ti/sdo/dmai/Dmai.h>
+#include <ti/sdo/dmai/ce/Vdec2.h>
+#include <ti/sdo/dmai/VideoStd.h>
+#include <ti/sdo/dmai/Buffer.h>
+#include <ti/sdo/dmai/BufTab.h>
+#include <ti/sdo/dmai/BufferGfx.h>
+#include <ti/sdo/dmai/Display.h>
+#include <ti/sdo/dmai/Cpu.h>
 
-void TIDmaiHandleInit();
-void TIDmaiHandleDeinit();
-Engine_Handle TIDmaiDetHandle(void);
-void TIDMmaiFreeHandle(Engine_Handle h);
+/* For compiling/linking only */
+void ticodec();
 
-#endif /* __TI_DMAI_IFACE_H */
+
+#endif /* __TICODEC_H */

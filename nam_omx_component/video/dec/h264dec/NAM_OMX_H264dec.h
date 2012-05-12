@@ -31,16 +31,25 @@
 #include "OMX_Component.h"
 #include "OMX_Video.h"
 
+#include "ticodec.h"
+
+#define DMAI_H264_DECODER_NAME "h264dec"
 
 typedef struct _NAM_DMAI_H264DEC_HANDLE
 {
-    OMX_HANDLETYPE hDMAIHandle;
-    OMX_PTR pDMAIStreamBuffer;
-    OMX_PTR pDMAIStreamPhyBuffer;
+    OMX_STRING		decoderName;
+    Cpu_Device          device;
+    Engine_Handle	hEngine;
+    Vdec2_Handle	hVd2;
+    Buffer_Handle	hDSPBuffer;
+    OMX_U8              *pDSPBuffer;
+    BufTab_Handle	hOutBufTab;
+    OMX_U32		DSPBufferSize;
+    OMX_S32		returnCodec;
+
     OMX_U32    indexTimestamp;
     OMX_BOOL bConfiguredDMAI;
     OMX_BOOL bThumbnailMode;
-    OMX_S32  returnCodec;
 } NAM_DMAI_H264DEC_HANDLE;
 
 typedef struct _NAM_H264DEC_HANDLE

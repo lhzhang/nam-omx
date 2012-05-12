@@ -33,6 +33,7 @@
 #include "NAM_OSAL_Queue.h"
 #include "NAM_OMX_Baseport.h"
 
+#include "ticodec.h"
 
 typedef struct _NAM_OMX_MESSAGE
 {
@@ -65,6 +66,7 @@ typedef struct _NAM_BUFFER_HEADER{
 
 typedef struct _NAM_OMX_DATA
 {
+    Buffer_Handle hBuffer; /* Dmai Buffer_Handle */
     OMX_BYTE  dataBuffer;
     OMX_U32   allocSize;
     OMX_U32   dataLen;
@@ -147,6 +149,9 @@ typedef struct _NAM_OMX_BASECOMPONENT
     OMX_ERRORTYPE (*nam_dmai_componentInit)(OMX_COMPONENTTYPE *pOMXComponent);
     OMX_ERRORTYPE (*nam_dmai_componentTerminate)(OMX_COMPONENTTYPE *pOMXComponent);
     OMX_ERRORTYPE (*nam_dmai_bufferProcess) (OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData);
+
+    /* Dmai need  to allocate buffer by itselt */
+    OMX_ERRORTYPE (*nam_AllocateBuffer)(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 nPortIndex, OMX_U32 nSizeBytes);
 
     OMX_ERRORTYPE (*nam_AllocateTunnelBuffer)(NAM_OMX_BASEPORT *pOMXBasePort, OMX_U32 nPortIndex);
     OMX_ERRORTYPE (*nam_FreeTunnelBuffer)(NAM_OMX_BASEPORT *pOMXBasePort, OMX_U32 nPortIndex);

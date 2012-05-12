@@ -76,6 +76,7 @@ void TIDmaiHandleDeinit() {}
 
 Engine_Handle TIDmaiDetHandle()
 {
+    Engine_Handle	hEngine;
     Engine_Error        ec;
 
     FunctionIn();
@@ -86,15 +87,19 @@ Engine_Handle TIDmaiDetHandle()
 
     if (!refcount) {
         /* ...initialize codec engine runtime */
-        CERuntime_init ();
+        CERuntime_init();
 
         /* ...initialize DMAI framework */
-        Dmai_init ();
+        Dmai_init();
 
         if ((global_engine_handle = Engine_open("codecServer", NULL, &ec)) == NULL) {
             NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to open engine 'codecServer': %X", (unsigned) ec);
             CERuntime_exit ();
+            hEngine = NULL;
+            goto EXIT;
         }
+        hEngine = global_engine_handle;
+        
     }
     refcount++;
 
@@ -102,9 +107,10 @@ Engine_Handle TIDmaiDetHandle()
     NAM_OSAL_MutexUnlock(gEngineHandleMutex);
 #endif
 
+EXIT:
     FunctionOut();
 
-    return global_engine_handle;
+    return hEngine;
 
 }
 

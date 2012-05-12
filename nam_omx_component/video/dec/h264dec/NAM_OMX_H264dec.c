@@ -36,6 +36,9 @@
 #include "NAM_OMX_H264dec.h"
 #include "color_space_convertor.h"
 
+#include "ticodec.h"
+#include "ti_dmai_iface.h"
+
 #undef  NAM_LOG_TAG
 #define NAM_LOG_TAG    "NAM_H264_DEC"
 //#define NAM_LOG_OFF
@@ -437,6 +440,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_SetParameter(
 
         NAM_OSAL_Memcpy(&pNAMPort->portDefinition, pPortDefinition, pPortDefinition->nSize);
 
+
         width = ((pNAMPort->portDefinition.format.video.nFrameWidth + 15) & (~15));
         height = ((pNAMPort->portDefinition.format.video.nFrameHeight + 15) & (~15));
         size = (width * height * 3) / 2;
@@ -770,9 +774,9 @@ OMX_ERRORTYPE NAM_DMAI_DecodeThread(OMX_HANDLETYPE hComponent)
         NAM_OSAL_SemaphoreWait(pH264Dec->NBDecThread.hDecFrameStart);
 
         if (pH264Dec->NBDecThread.bExitDecodeThread == OMX_FALSE) {
-#if ENABLE_MFC
-            pH264Dec->hDMAIH264Handle.returnCodec = SsbSipDmaiDecExe(pH264Dec->hDMAIH264Handle.hDMAIHandle, pH264Dec->NBDecThread.oneFrameSize);
-#endif
+            //pH264Dec->hDMAIH264Handle.returnCodec = SsbSipDmaiDecExe(pH264Dec->hDMAIH264Handle.hDMAIHandle, pH264Dec->NBDecThread.oneFrameSize);
+            Buffer_Handle hInBuf,hDstBuf;
+            pH264Dec->hDMAIH264Handle.returnCodec = Vdec2_process(pH264Dec->hDMAIH264Handle.hVd2, hInBuf, hDstBuf);
             NAM_OSAL_SemaphorePost(pH264Dec->NBDecThread.hDecFrameEnd);
         }
     }
@@ -784,53 +788,160 @@ EXIT:
     return ret;
 }
 
-/* DMAI Init */
-OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
+OMX_ERRORTYPE NAM_DMAI_H264Dec_AllocateBuffer(
+    OMX_COMPONENTTYPE                *pOMXComponent,
+    OMX_U32                          nPortIndex,
+    OMX_IN OMX_U32                   nSizeBytes)
+{
+    OMX_ERRORTYPE          ret = OMX_ErrorNone;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_H264DEC_HANDLE    *pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
+
+    FunctionIn();
+#if 0
+    if (pH264Dec->hDMAIH264Handle.hVd2 == NULL && pH264Dec->bDecTerminate == FALSE) {
+        NAM_OSAL_SemaphoreWait(pH264Dec->hDMAIH264Handle->hDecCreated);
+    }
+
+    /* Wait until decoder created */
+    while(pH264Dec->hDMAIH264Handle.hVd2 == NULL && ) {
+    	NAM_OSAL_SleepMillinam(1);  
+    }
+#endif
+
+EXIT:
+    FunctionOut();
+
+    return ret;
+}
+
+/* Release all allocated resources */
+static OMX_ERRORTYPE NAM_DMAI_H264Dec_CleanUp(OMX_COMPONENTTYPE *pOMXComponent)
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264DEC_HANDLE    *pH264Dec = NULL;
 
-    OMX_PTR hDMAIHandle       = NULL;
-    OMX_PTR pStreamBuffer    = NULL;
-    OMX_PTR pStreamPhyBuffer = NULL;
+    FunctionIn();
+
+    pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
+
+    /* Delete decoder */
+    if(pH264Dec->hDMAIH264Handle.hVd2 != NULL) {
+        Vdec2_delete(pH264Dec->hDMAIH264Handle.hVd2);
+        pH264Dec->hDMAIH264Handle.hVd2 = NULL;
+    }
+
+    /* Delete engine */
+    if(pH264Dec->hDMAIH264Handle.hEngine != NULL) {
+        TIDMmaiFreeHandle(pH264Dec->hDMAIH264Handle.hEngine);
+        pH264Dec->hDMAIH264Handle.hEngine = NULL;
+    }
+
+    /* Delete input codec buffer */
+    if(pH264Dec->hDMAIH264Handle.hDSPBuffer != NULL) {
+        Buffer_delete (pH264Dec->hDMAIH264Handle.hDSPBuffer),
+        pH264Dec->hDMAIH264Handle.hDSPBuffer = NULL;
+    }
+
+    /* Delete output codec buffers */
+    if (pH264Dec->hDMAIH264Handle.hOutBufTab != NULL) {
+        /* Mark all buffers as free, destroy any resizing data and destroy codec engine */
+        BufTab_freeAll(pH264Dec->hDMAIH264Handle.hOutBufTab);
+        BufTab_collapse(pH264Dec->hDMAIH264Handle.hOutBufTab);
+        /* Delete output buffer table if needed (TBD) */
+        BufTab_delete(pH264Dec->hDMAIH264Handle.hOutBufTab);
+        pH264Dec->hDMAIH264Handle.hOutBufTab = NULL;
+    }
+
+EXIT:
+    FunctionOut();
+
+    return ret;
+}
+/* DMAI Init */
+OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
+{
+    OMX_ERRORTYPE          ret = OMX_ErrorNone;
+    NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASEPORT      *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
+    NAM_H264DEC_HANDLE    *pH264Dec = NULL;
+    OMX_BOOL              bConfiguredDMAI = OMX_FALSE;
+    
+    OMX_U32 DSPBufferSize;
+    OMX_U32 bufSize;
+    Engine_Error ec;
+    Engine_Handle hEngine    = NULL;
+    Vdec2_Handle hVd2        = NULL;
+    Buffer_Handle hDSPBuffer = NULL;
+    BufTab_Handle hOutBufTab = NULL;
+    Buffer_Attrs            bAttrs	        = Buffer_Attrs_DEFAULT;
+    BufferGfx_Attrs         gfxAttrs            = BufferGfx_Attrs_DEFAULT;
+    VIDDEC2_Params          params              = Vdec2_Params_DEFAULT;
+    VIDDEC2_DynamicParams   dynParams           = Vdec2_DynamicParams_DEFAULT;
 
     FunctionIn();
 
     pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
     pH264Dec->hDMAIH264Handle.bConfiguredDMAI = OMX_FALSE;
+    pH264Dec->hDMAIH264Handle.hEngine = NULL;
+    pH264Dec->hDMAIH264Handle.hVd2 = NULL;
+    pH264Dec->hDMAIH264Handle.hDSPBuffer = NULL;
+    pH264Dec->hDMAIH264Handle.pDSPBuffer = NULL;
+
     pNAMComponent->bUseFlagEOF = OMX_FALSE;
     pNAMComponent->bSaveFlagEOS = OMX_FALSE;
 
-#if ENABLE_MFC
-    /* DMAI(Multi Function Codec) decoder and CMM(Codec Memory Management) driver open */
-    SSBIP_DMAI_BUFFER_TYPE buf_type = CACHE;
-    hDMAIHandle = (OMX_PTR)SsbSipDmaiDecOpen(&buf_type);
-    if (hDMAIHandle == NULL) {
+    hEngine = TIDmaiDetHandle();
+    if (hEngine == NULL) {
+        NAM_OSAL_Log(NAM_LOG_ERROR, "Invalid DSP Engine Handle. Line:%d", __LINE__);
         ret = OMX_ErrorInsufficientResources;
         goto EXIT;
     }
-#endif
-    pH264Dec->hDMAIH264Handle.hDMAIHandle = hDMAIHandle;
+    pH264Dec->hDMAIH264Handle.hEngine = hEngine;
 
-#if ENABLE_MFC
-    /* Allocate decoder's input buffer */
-    pStreamBuffer = SsbSipDmaiDecGetInBuf(hDMAIHandle, &pStreamPhyBuffer, DEFAULT_DMAI_INPUT_BUFFER_SIZE * DMAI_INPUT_BUFFER_NUM_MAX);
-    if (pStreamBuffer == NULL) {
+    /* ...specify actual frame size */
+    params.maxWidth = pNAMOutputPort->portDefinition.format.video.nStride;
+    params.maxHeight = pNAMOutputPort->portDefinition.format.video.nSliceHeight;
+    params.forceChromaFormat = XDM_YUV_422ILE;
+
+    hVd2 = Vdec2_create(hEngine, pH264Dec->hDMAIH264Handle.decoderName, &params, &dynParams);
+    if (hVd2 == NULL) {
         ret = OMX_ErrorInsufficientResources;
+        NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to open decoder %s, Line: %d", pH264Dec->hDMAIH264Handle.decoderName, __LINE__);
         goto EXIT;
     }
-#endif
+    pH264Dec->hDMAIH264Handle.hVd2 = hVd2;
 
-    pH264Dec->DMAIDecInputBuffer[0].VirAddr = pStreamBuffer;
-    pH264Dec->DMAIDecInputBuffer[0].PhyAddr = pStreamPhyBuffer;
-    pH264Dec->DMAIDecInputBuffer[0].bufferSize = DEFAULT_DMAI_INPUT_BUFFER_SIZE;
-    pH264Dec->DMAIDecInputBuffer[0].dataSize = 0;
-    pH264Dec->DMAIDecInputBuffer[1].VirAddr = (unsigned char *)pStreamBuffer + pH264Dec->DMAIDecInputBuffer[0].bufferSize;
-    pH264Dec->DMAIDecInputBuffer[1].PhyAddr = (unsigned char *)pStreamPhyBuffer + pH264Dec->DMAIDecInputBuffer[0].bufferSize;
-    pH264Dec->DMAIDecInputBuffer[1].bufferSize = DEFAULT_DMAI_INPUT_BUFFER_SIZE;
-    pH264Dec->DMAIDecInputBuffer[1].dataSize = 0;
-    pH264Dec->indexInputBuffer = 0;
+    DSPBufferSize = Vdec2_getInBufSize(hVd2);
+    /* Allocate decoder's input buffer, only one */
+    hDSPBuffer = Buffer_create (DSPBufferSize, &bAttrs);
+    if (hDSPBuffer == NULL) {
+        ret = OMX_ErrorInsufficientResources;
+        NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to create input buffer, Line: %d", __LINE__);
+        goto EXIT;
+    }
+    pH264Dec->hDMAIH264Handle.hDSPBuffer = hDSPBuffer;
+    pH264Dec->hDMAIH264Handle.pDSPBuffer = (OMX_U8 *)Buffer_getUserPtr(hDSPBuffer);
+    pH264Dec->hDMAIH264Handle.DSPBufferSize = DSPBufferSize;
+
+    bufSize = Vdec2_getOutBufSize(hVd2);
+    //bufSize = Dmai_roundUp(Vdec2_getOutBufSize(hVd), 128); // ??
+    gfxAttrs.colorSpace = ColorSpace_UYVY;
+    gfxAttrs.dim.width = params.maxWidth;
+    gfxAttrs.dim.height = params.maxHeight;
+    gfxAttrs.dim.lineLength = BufferGfx_calcLineLength (gfxAttrs.dim.width, gfxAttrs.colorSpace);
+    gfxAttrs.bAttrs.useMask = OMX_DSP_CODEC_MASK | OMX_DSP_DISPLAY_MASK;
+    /* ...create buffers table (number of buffers are the same as the output port) */
+    hOutBufTab = BufTab_create (OMX_DSP_OUTPUT_BUFTAB_NUMBER, bufSize, BufferGfx_getBufferAttrs(&gfxAttrs));
+    if (hOutBufTab == NULL) {
+        ret = OMX_ErrorInsufficientResources;
+        NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to create output buffers table, Line: %d", __LINE__);
+        goto EXIT;
+    }
+    /* And bind it to decoder display buffers */
+    Vdec2_setBufTab (hVd2, hOutBufTab);
+    pH264Dec->hDMAIH264Handle.hOutBufTab = hOutBufTab;
 
     pH264Dec->bFirstFrame = OMX_TRUE;
 
@@ -842,22 +953,26 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     if (OMX_ErrorNone == NAM_OSAL_ThreadCreate(&pH264Dec->NBDecThread.hNBDecodeThread,
                                                 NAM_DMAI_DecodeThread,
                                                 pOMXComponent)) {
-#if ENABLE_MFC
-        pH264Dec->hDMAIH264Handle.returnCodec = DMAI_RET_OK;
-#endif
+        pH264Dec->hDMAIH264Handle.returnCodec = Dmai_EOK;
     }
 
-    pH264Dec->hDMAIH264Handle.pDMAIStreamBuffer    = pH264Dec->DMAIDecInputBuffer[0].VirAddr;
-    pH264Dec->hDMAIH264Handle.pDMAIStreamPhyBuffer = pH264Dec->DMAIDecInputBuffer[0].PhyAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pH264Dec->DMAIDecInputBuffer[0].VirAddr;
-    pNAMComponent->processData[INPUT_PORT_INDEX].allocSize  = pH264Dec->DMAIDecInputBuffer[0].bufferSize;
+    pNAMComponent->processData[INPUT_PORT_INDEX].hBuffer    = pH264Dec->hDMAIH264Handle.hDSPBuffer;
+    pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = pH264Dec->hDMAIH264Handle.pDSPBuffer;
+    pNAMComponent->processData[INPUT_PORT_INDEX].allocSize  = pH264Dec->hDMAIH264Handle.DSPBufferSize;
 
     NAM_OSAL_Memset(pNAMComponent->timeStamp, -19771003, sizeof(OMX_TICKS) * MAX_TIMESTAMP);
     NAM_OSAL_Memset(pNAMComponent->nFlags, 0, sizeof(OMX_U32) * MAX_FLAGS);
     pH264Dec->hDMAIH264Handle.indexTimestamp = 0;
     pNAMComponent->getAllDelayBuffer = OMX_FALSE;
 
+    bConfiguredDMAI = OMX_TRUE;
+
 EXIT:
+    if(bConfiguredDMAI == OMX_FALSE) {
+        /* Initialization failed, perform cleanup */
+        NAM_DMAI_H264Dec_CleanUp(pOMXComponent);
+    }
+
     FunctionOut();
 
     return ret;
@@ -869,15 +984,11 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
     NAM_H264DEC_HANDLE    *pH264Dec = NULL;
-    OMX_PTR                hDMAIHandle = NULL;
 
     FunctionIn();
 
     pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
-    hDMAIHandle = pH264Dec->hDMAIH264Handle.hDMAIHandle;
 
-    pH264Dec->hDMAIH264Handle.pDMAIStreamBuffer    = NULL;
-    pH264Dec->hDMAIH264Handle.pDMAIStreamPhyBuffer = NULL;
     pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = NULL;
     pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = 0;
 
@@ -898,12 +1009,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
         pH264Dec->NBDecThread.hDecFrameStart = NULL;
     }
 
-#if ENABLE_MFC
-    if (hDMAIHandle != NULL) {
-        SsbSipDmaiDecClose(hDMAIHandle);
-        hDMAIHandle = pH264Dec->hDMAIH264Handle.hDMAIHandle = NULL;
-    }
-#endif
+    NAM_DMAI_H264Dec_CleanUp(pOMXComponent);
 
 EXIT:
     FunctionOut();
@@ -1328,6 +1434,9 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     NAM_OMX_BASECOMPONENT   *pNAMComponent = NULL;
     NAM_OMX_BASEPORT        *pNAMPort = NULL;
     NAM_H264DEC_HANDLE      *pH264Dec = NULL;
+    OMX_STRING              decoderName = NULL;
+    Cpu_Device              device;
+    int nameLen;
     int i = 0;
 
     FunctionIn();
@@ -1370,6 +1479,37 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     }
     NAM_OSAL_Memset(pH264Dec, 0, sizeof(NAM_H264DEC_HANDLE));
     pNAMComponent->hCodecHandle = (OMX_HANDLETYPE)pH264Dec;
+
+    decoderName = (OMX_STRING)NAM_OSAL_Malloc(OMX_MAX_STRINGNAME_SIZE);
+    if(decoderName == NULL) {
+        ret = OMX_ErrorInsufficientResources;
+        NAM_OSAL_Log(NAM_LOG_ERROR, "OMX_ErrorInsufficientResources, Line:%d", __LINE__);
+        goto EXIT;
+    }
+    NAM_OSAL_Strcpy(decoderName, DMAI_H264_DECODER_NAME);
+    pH264Dec->hDMAIH264Handle.decoderName = decoderName;
+
+        /* Determine which device type */
+    if(Cpu_getDevice(NULL, &device) < 0) {
+        ret = OMX_ErrorInsufficientResources;
+        NAM_OSAL_Log(NAM_LOG_ERROR, "Cann't get the device type, Line:%d", __LINE__);
+        goto EXIT;
+    }
+
+    switch (device) {
+    case Cpu_Device_DM3730:
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Device type is DM3730");
+        //numActualBufs = OMX_DSP_OUTPUT_BUFFER_NUMBER_HP;
+        break;
+    case Cpu_Device_OMAP3530:
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Device type is DM3530");
+        //numActualBufs = OMX_DSP_OUTPUT_BUFFER_NUMBER;
+        break;
+    default:
+        ret = OMX_ErrorInsufficientResources;
+        NAM_OSAL_Log(NAM_LOG_ERROR, "The device type (%d) is not supported", device);
+        goto EXIT;
+    }
 
     NAM_OSAL_Strcpy(pNAMComponent->componentName, NAM_OMX_COMPONENT_H264_DEC);
     /* Set componentVersion */
@@ -1441,7 +1581,8 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     pNAMComponent->nam_dmai_componentInit      = &NAM_DMAI_H264Dec_Init;
     pNAMComponent->nam_dmai_componentTerminate = &NAM_DMAI_H264Dec_Terminate;
     pNAMComponent->nam_dmai_bufferProcess      = &NAM_DMAI_H264Dec_bufferProcess;
-    pNAMComponent->nam_checkInputFrame        = &Check_H264_Frame;
+    pNAMComponent->nam_checkInputFrame         = &Check_H264_Frame;
+    pNAMComponent->nam_AllocateBuffer          = &NAM_DMAI_H264Dec_AllocateBuffer;
 
     pNAMComponent->currentState = OMX_StateLoaded;
 
@@ -1474,6 +1615,9 @@ OMX_ERRORTYPE NAM_OMX_ComponentDeinit(OMX_HANDLETYPE hComponent)
 
     pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
     if (pH264Dec != NULL) {
+        if(pH264Dec->hDMAIH264Handle.decoderName) {
+            NAM_OSAL_Free(pH264Dec->hDMAIH264Handle.decoderName);
+        }
         NAM_OSAL_Free(pH264Dec);
         pH264Dec = pNAMComponent->hCodecHandle = NULL;
     }
