@@ -37,5 +37,4 @@
 /* For compiling/linking only */
 void ticodec();
 
-
 #endif /* __TICODEC_H */
