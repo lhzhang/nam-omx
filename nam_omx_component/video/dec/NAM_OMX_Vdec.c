@@ -225,7 +225,11 @@ OMX_ERRORTYPE NAM_OMX_AllocateBuffer(
         goto EXIT;
     }
 
-#if 1
+#if 0
+    // This is for TI OMX.NAM.* codecs.
+    // The decoders don't allocate and assign the 'pBuffer'
+    // member on a call to OMX_AllocateBuffer().
+    // Assign it after decode.
     temp_buffer = NAM_OSAL_Malloc(sizeof(OMX_U8) * nSizeBytes);
     if (temp_buffer == NULL) {
         ret = OMX_ErrorInsufficientResources;
@@ -233,15 +237,13 @@ OMX_ERRORTYPE NAM_OMX_AllocateBuffer(
     }
 #endif
 
-#if 0
-     pNAMPort->assignedBufferNum++;
+    temp_buffer = NULL;
 
-     ret = pNAMComponent->nam_AllocateBuffer(pOMXComponent, nPortIndex);
+#if 1
+     ret = pNAMComponent->nam_AllocateBuffer(pOMXComponent, nPortIndex, nSizeBytes);
      if(ret == OMX_ErrorInsufficientResources) {
         goto EXIT;
      }
-
-     temp_buffer = 
 #endif
 
     temp_bufferHeader = (OMX_BUFFERHEADERTYPE *)NAM_OSAL_Malloc(sizeof(OMX_BUFFERHEADERTYPE));

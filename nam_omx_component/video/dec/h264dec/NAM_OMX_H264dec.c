@@ -798,6 +798,8 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_AllocateBuffer(
     NAM_H264DEC_HANDLE    *pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
 
     FunctionIn();
+
+    //if(nSizeBytes != )
 #if 0
     if (pH264Dec->hDMAIH264Handle.hVd2 == NULL && pH264Dec->bDecTerminate == FALSE) {
         NAM_OSAL_SemaphoreWait(pH264Dec->hDMAIH264Handle->hDecCreated);
@@ -932,7 +934,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     gfxAttrs.dim.height = params.maxHeight;
     gfxAttrs.dim.lineLength = BufferGfx_calcLineLength (gfxAttrs.dim.width, gfxAttrs.colorSpace);
     gfxAttrs.bAttrs.useMask = OMX_DSP_CODEC_MASK | OMX_DSP_DISPLAY_MASK;
-    /* ...create buffers table (number of buffers are the same as the output port) */
+    /* Create buffers table (number of buffers are the same as the output port) */
     hOutBufTab = BufTab_create (OMX_DSP_OUTPUT_BUFTAB_NUMBER, bufSize, BufferGfx_getBufferAttrs(&gfxAttrs));
     if (hOutBufTab == NULL) {
         ret = OMX_ErrorInsufficientResources;
