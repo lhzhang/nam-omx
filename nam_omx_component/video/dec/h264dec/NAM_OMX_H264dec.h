@@ -44,6 +44,8 @@ typedef struct _NAM_DMAI_H264DEC_HANDLE
     Buffer_Handle	hDSPBuffer;
     OMX_U8              *pDSPBuffer;
     BufTab_Handle	hOutBufTab;
+    OMX_BOOL		bCreateBufTabOneShot;
+    OMX_BOOL		bResizeBufTab;
     OMX_U32		DSPBufferSize;
     OMX_S32		returnCodec;
 
@@ -60,6 +62,8 @@ typedef struct _NAM_H264DEC_HANDLE
 
     /* NAM DMAI Codec specific */
     NAM_DMAI_H264DEC_HANDLE hDMAIH264Handle;
+
+    OMX_BOOL bDecTerminate;
 
     /* For Non-Block mode */
     NAM_DMAI_NBDEC_THREAD NBDecThread;

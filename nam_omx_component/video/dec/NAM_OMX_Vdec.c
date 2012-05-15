@@ -43,7 +43,6 @@
 
 #include "NAM_OSAL_Log.h"
 
-
 inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
 {
     NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;

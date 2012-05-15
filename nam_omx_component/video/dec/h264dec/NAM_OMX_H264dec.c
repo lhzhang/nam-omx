@@ -46,6 +46,7 @@
 #include "NAM_OSAL_Log.h"
 
 #define ENABLE_MFC 0
+#define BUFSIZEALIGN 128
 
 //#define ADD_SPS_PPS_I_FRAME
 //#define FULL_FRAME_SEARCH
@@ -795,21 +796,150 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_AllocateBuffer(
 {
     OMX_ERRORTYPE          ret = OMX_ErrorNone;
     NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
+    NAM_OMX_BASEPORT      *pNAMOutputPort = &pNAMComponent->pNAMPort[OUTPUT_PORT_INDEX];
     NAM_H264DEC_HANDLE    *pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
+
+    Buffer_Handle hBuf;
+    Int32 frameSize;
+    Int32 bufSize;
+    Int numBufs, numCodecBuffers, numExpBufs;
+    Int displayBufs = 0;
+    Vdec2_Handle            hVd2		= NULL;
+    BufTab_Handle           hOutBufTab		= NULL;
+    BufferGfx_Attrs         gfxAttrs            = BufferGfx_Attrs_DEFAULT;
+    VIDDEC2_Params          params              = Vdec2_Params_DEFAULT;
 
     FunctionIn();
 
-    //if(nSizeBytes != )
 #if 0
     if (pH264Dec->hDMAIH264Handle.hVd2 == NULL && pH264Dec->bDecTerminate == FALSE) {
         NAM_OSAL_SemaphoreWait(pH264Dec->hDMAIH264Handle->hDecCreated);
     }
-
-    /* Wait until decoder created */
-    while(pH264Dec->hDMAIH264Handle.hVd2 == NULL && ) {
-    	NAM_OSAL_SleepMillinam(1);  
-    }
 #endif
+
+    /* Wait until decoder created. it is a temporary solution, should call NAM_OSAL_SemaphoreWait or NAM_OSAL_SignalWait fxns */
+    while(pH264Dec->hDMAIH264Handle.hVd2 == NULL && pH264Dec->bDecTerminate == OMX_FALSE) {
+    	NAM_OSAL_SleepMillinam(2);  
+    }
+
+    if(pH264Dec->bDecTerminate == OMX_TRUE)
+    {
+            /* ret = OMX_ErrorUndefined; */
+            /* ret = OMX_ErrorInsufficientResources; */
+            ret = OMX_ErrorNone;
+            NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to allocate BufTab for H264Dec as it is terminated, Line: %d", __LINE__);
+            goto EXIT;
+    }
+
+
+    hVd2 = pH264Dec->hDMAIH264Handle.hVd2;
+
+    if(pH264Dec->hDMAIH264Handle.bCreateBufTabOneShot) {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Create BufTab OneShot for H264Dec, Line: %d", __LINE__);
+
+        pH264Dec->hDMAIH264Handle.bCreateBufTabOneShot = OMX_FALSE;
+
+        /* ...specify actual frame size */
+        params.maxWidth = pNAMOutputPort->portDefinition.format.video.nStride;
+        params.maxHeight = pNAMOutputPort->portDefinition.format.video.nSliceHeight;
+        params.forceChromaFormat = XDM_YUV_422ILE;
+
+        bufSize = Vdec2_getOutBufSize(hVd2);
+        //bufSize = Dmai_roundUp(Vdec2_getOutBufSize(hVd), 32);
+	//bufSize = Dmai_roundUp(Vdec2_getOutBufSize(hVd2), BUFSIZEALIGN); /* BUFSIZEALIGN = 128 */
+	if(nSizeBytes != bufSize) {
+            ret = OMX_ErrorInsufficientResources;
+            NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to create output buffers, the given[size: %d] does not meet the needs of the decoder[size: %d], Line: %d", __LINE__);
+            goto EXIT;
+	}
+
+        gfxAttrs.colorSpace = ColorSpace_UYVY;
+        gfxAttrs.dim.width = params.maxWidth;
+        gfxAttrs.dim.height = params.maxHeight;
+        gfxAttrs.dim.lineLength = BufferGfx_calcLineLength (gfxAttrs.dim.width, gfxAttrs.colorSpace);
+        gfxAttrs.bAttrs.useMask = OMX_DSP_CODEC_MASK | OMX_DSP_DISPLAY_MASK;
+
+        /* Create buffers table (number of buffers are the same as the output port) */
+        hOutBufTab = BufTab_create (OMX_DSP_OUTPUT_BUFTAB_NUMBER, bufSize, BufferGfx_getBufferAttrs(&gfxAttrs));
+        if(hOutBufTab == NULL) {
+            ret = OMX_ErrorInsufficientResources;
+            NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to create output buffers table, Line: %d", __LINE__);
+            goto EXIT;
+        }
+        /* And bind it to decoder display buffers */
+        Vdec2_setBufTab (hVd2, hOutBufTab);
+        pH264Dec->hDMAIH264Handle.hOutBufTab = hOutBufTab;
+    }
+
+    if(pH264Dec->hDMAIH264Handle.bResizeBufTab) {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Resize BufTab for H264Dec, Line: %d", __LINE__);
+
+        pH264Dec->hDMAIH264Handle.bResizeBufTab = OMX_FALSE;
+
+        hOutBufTab = pH264Dec->hDMAIH264Handle.hOutBufTab;
+
+	/* How many buffers can the codec keep at one time? */
+        numCodecBuffers = Vdec2_getMinOutBufs(hVd2);
+        if(numCodecBuffers < 0) {
+            ret = OMX_ErrorInsufficientResources;
+            NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to get buffer requirements: %d, Line: %d", numCodecBuffers, __LINE__);
+            goto EXIT;
+	}
+
+        /*
+         * Total number of frames needed are the number of buffers the codec
+         * can keep at any time, plus the number of frames in the display pipe.
+         */
+        numBufs = numCodecBuffers + displayBufs;
+
+        /* Get the size of output buffers needed from codec */
+        frameSize = Vdec2_getOutBufSize(hVd2);
+
+        /*
+         * Get the first buffer of the BufTab to determine buffer characteristics.
+         * All buffers in a BufTab share the same characteristics.
+         */
+        hBuf = BufTab_getBuf(hOutBufTab, 0);
+        /* Do we need to resize the BufTab? */
+        if (numBufs > BufTab_getNumBufs(hOutBufTab) || frameSize < Buffer_getSize(hBuf)) {
+
+            /* Should we break the current buffers in to many smaller buffers? */
+            if(frameSize < Buffer_getSize(hBuf)) {
+
+                /*
+                 * Chunk the larger buffers of the BufTab in to smaller buffers
+                 * to accomodate the codec requirements.
+                 */
+                numExpBufs = BufTab_chunk(hOutBufTab, numBufs, frameSize);
+
+                if(numExpBufs < 0) {
+                    ret = OMX_ErrorInsufficientResources;
+                    NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to chunk %d bufs size %ld to %d bufs size %ld, Line: %d",
+                        BufTab_getNumBufs(hOutBufTab), Buffer_getSize(hBuf), numBufs, frameSize, __LINE__);
+                    goto EXIT;
+                }
+
+                /*
+                 * Did the current BufTab fit the chunked buffers,
+                 * or do we need to expand the BufTab (numExpBufs > 0)?
+                 */
+                if(BufTab_expand(hOutBufTab, numExpBufs) < 0) {
+                    ret = OMX_ErrorInsufficientResources;
+                    NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to expand BufTab with %d buffers after chunk,  Line: %d",
+                        numExpBufs, __LINE__);
+                    goto EXIT;
+                }
+            } else {
+                /* Just expand the BufTab with more buffers */
+                if(BufTab_expand(hOutBufTab, (numBufs - BufTab_getNumBufs(hOutBufTab))) < 0) {
+                    ret = OMX_ErrorInsufficientResources;
+                    NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to expand BufTab with %d buffers,  Line: %d",
+                        (numBufs - BufTab_getNumBufs(hOutBufTab)), __LINE__);
+                    goto EXIT;
+                }
+            }
+        }
+    }
 
 EXIT:
     FunctionOut();
@@ -871,14 +1001,12 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     OMX_BOOL              bConfiguredDMAI = OMX_FALSE;
     
     OMX_U32 DSPBufferSize;
-    OMX_U32 bufSize;
     Engine_Error ec;
     Engine_Handle hEngine    = NULL;
     Vdec2_Handle hVd2        = NULL;
     Buffer_Handle hDSPBuffer = NULL;
     BufTab_Handle hOutBufTab = NULL;
     Buffer_Attrs            bAttrs	        = Buffer_Attrs_DEFAULT;
-    BufferGfx_Attrs         gfxAttrs            = BufferGfx_Attrs_DEFAULT;
     VIDDEC2_Params          params              = Vdec2_Params_DEFAULT;
     VIDDEC2_DynamicParams   dynParams           = Vdec2_DynamicParams_DEFAULT;
 
@@ -890,6 +1018,8 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     pH264Dec->hDMAIH264Handle.hVd2 = NULL;
     pH264Dec->hDMAIH264Handle.hDSPBuffer = NULL;
     pH264Dec->hDMAIH264Handle.pDSPBuffer = NULL;
+    pH264Dec->hDMAIH264Handle.bCreateBufTabOneShot = OMX_TRUE;
+    pH264Dec->hDMAIH264Handle.bResizeBufTab = OMX_FALSE;
 
     pNAMComponent->bUseFlagEOF = OMX_FALSE;
     pNAMComponent->bSaveFlagEOS = OMX_FALSE;
@@ -926,24 +1056,6 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
     pH264Dec->hDMAIH264Handle.hDSPBuffer = hDSPBuffer;
     pH264Dec->hDMAIH264Handle.pDSPBuffer = (OMX_U8 *)Buffer_getUserPtr(hDSPBuffer);
     pH264Dec->hDMAIH264Handle.DSPBufferSize = DSPBufferSize;
-
-    bufSize = Vdec2_getOutBufSize(hVd2);
-    //bufSize = Dmai_roundUp(Vdec2_getOutBufSize(hVd), 128); // ??
-    gfxAttrs.colorSpace = ColorSpace_UYVY;
-    gfxAttrs.dim.width = params.maxWidth;
-    gfxAttrs.dim.height = params.maxHeight;
-    gfxAttrs.dim.lineLength = BufferGfx_calcLineLength (gfxAttrs.dim.width, gfxAttrs.colorSpace);
-    gfxAttrs.bAttrs.useMask = OMX_DSP_CODEC_MASK | OMX_DSP_DISPLAY_MASK;
-    /* Create buffers table (number of buffers are the same as the output port) */
-    hOutBufTab = BufTab_create (OMX_DSP_OUTPUT_BUFTAB_NUMBER, bufSize, BufferGfx_getBufferAttrs(&gfxAttrs));
-    if (hOutBufTab == NULL) {
-        ret = OMX_ErrorInsufficientResources;
-        NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to create output buffers table, Line: %d", __LINE__);
-        goto EXIT;
-    }
-    /* And bind it to decoder display buffers */
-    Vdec2_setBufTab (hVd2, hOutBufTab);
-    pH264Dec->hDMAIH264Handle.hOutBufTab = hOutBufTab;
 
     pH264Dec->bFirstFrame = OMX_TRUE;
 
@@ -990,6 +1102,8 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Terminate(OMX_COMPONENTTYPE *pOMXComponent)
     FunctionIn();
 
     pH264Dec = (NAM_H264DEC_HANDLE *)pNAMComponent->hCodecHandle;
+
+    pH264Dec->bDecTerminate = OMX_TRUE;
 
     pNAMComponent->processData[INPUT_PORT_INDEX].dataBuffer = NULL;
     pNAMComponent->processData[INPUT_PORT_INDEX].allocSize = 0;
@@ -1490,6 +1604,8 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     }
     NAM_OSAL_Strcpy(decoderName, DMAI_H264_DECODER_NAME);
     pH264Dec->hDMAIH264Handle.decoderName = decoderName;
+
+    pH264Dec->bDecTerminate = OMX_FALSE;
 
         /* Determine which device type */
     if(Cpu_getDevice(NULL, &device) < 0) {
