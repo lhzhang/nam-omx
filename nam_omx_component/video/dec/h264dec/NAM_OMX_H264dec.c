@@ -947,6 +947,25 @@ EXIT:
     return ret;
 }
 
+OMX_ERRORTYPE NAM_DMAI_H264Dec_ReleaseBuffer(
+    OMX_COMPONENTTYPE                *pOMXComponent,
+    OMX_BUFFERHEADERTYPE             *pBufferHeader)
+{
+    OMX_ERRORTYPE         ret = OMX_ErrorNone;
+    Buffer_Handle         hBuf = (Buffer_Handle)pBufferHeader->pPlatformPrivate;
+
+    if(hBuf != NULL) {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Release Buffer(set UseMark)");
+        /* Mark the buffer is not owned by renderer anymore */
+        Buffer_freeUseMask(hBuf, OMX_DSP_DISPLAY_MASK);
+    }
+
+EXIT:
+    FunctionOut();
+
+    return ret;
+}
+
 /* Release all allocated resources */
 static OMX_ERRORTYPE NAM_DMAI_H264Dec_CleanUp(OMX_COMPONENTTYPE *pOMXComponent)
 {
@@ -1700,7 +1719,8 @@ OSCL_EXPORT_REF OMX_ERRORTYPE NAM_OMX_ComponentInit(OMX_HANDLETYPE hComponent, O
     pNAMComponent->nam_dmai_componentTerminate = &NAM_DMAI_H264Dec_Terminate;
     pNAMComponent->nam_dmai_bufferProcess      = &NAM_DMAI_H264Dec_bufferProcess;
     pNAMComponent->nam_checkInputFrame         = &Check_H264_Frame;
-    pNAMComponent->nam_AllocateBuffer          = &NAM_DMAI_H264Dec_AllocateBuffer;
+    pNAMComponent->nam_dmai_allocate_buffer    = &NAM_DMAI_H264Dec_AllocateBuffer;
+    pNAMComponent->nam_dmai_release_buffer     = &NAM_DMAI_H264Dec_ReleaseBuffer;
 
     pNAMComponent->currentState = OMX_StateLoaded;
 

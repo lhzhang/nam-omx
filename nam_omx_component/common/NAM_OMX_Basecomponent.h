@@ -151,7 +151,8 @@ typedef struct _NAM_OMX_BASECOMPONENT
     OMX_ERRORTYPE (*nam_dmai_bufferProcess) (OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DATA *pInputData, NAM_OMX_DATA *pOutputData);
 
     /* Dmai need  to allocate buffer by itselt */
-    OMX_ERRORTYPE (*nam_AllocateBuffer)(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 nPortIndex, OMX_U32 nSizeBytes);
+    OMX_ERRORTYPE (*nam_dmai_allocate_buffer)(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 nPortIndex, OMX_U32 nSizeBytes);
+    OMX_ERRORTYPE (*nam_dmai_release_buffer)(OMX_COMPONENTTYPE *pOMXComponent, OMX_BUFFERHEADERTYPE *pBufferHeader);
 
     OMX_ERRORTYPE (*nam_AllocateTunnelBuffer)(NAM_OMX_BASEPORT *pOMXBasePort, OMX_U32 nPortIndex);
     OMX_ERRORTYPE (*nam_FreeTunnelBuffer)(NAM_OMX_BASEPORT *pOMXBasePort, OMX_U32 nPortIndex);

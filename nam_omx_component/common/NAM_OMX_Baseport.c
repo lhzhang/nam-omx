@@ -698,6 +698,12 @@ OMX_ERRORTYPE NAM_OMX_FillThisBuffer(
         ret = OMX_ErrorNone;
     }
 
+    /* Release dsp buffer: set UseMark */
+    ret = pNAMComponent->nam_dmai_release_buffer(pOMXComponent, pBuffer);
+    if (ret != OMX_ErrorNone) {
+	goto EXIT;
+    }
+
     message = NAM_OSAL_Malloc(sizeof(NAM_OMX_MESSAGE));
     if (message == NULL) {
         ret = OMX_ErrorInsufficientResources;

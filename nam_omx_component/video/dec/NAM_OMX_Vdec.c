@@ -238,12 +238,10 @@ OMX_ERRORTYPE NAM_OMX_AllocateBuffer(
 
     temp_buffer = NULL;
 
-#if 1
-     ret = pNAMComponent->nam_AllocateBuffer(pOMXComponent, nPortIndex, nSizeBytes);
+     ret = pNAMComponent->nam_dmai_allocate_buffer(pOMXComponent, nPortIndex, nSizeBytes);
      if(ret == OMX_ErrorInsufficientResources) {
         goto EXIT;
      }
-#endif
 
     temp_bufferHeader = (OMX_BUFFERHEADERTYPE *)NAM_OSAL_Malloc(sizeof(OMX_BUFFERHEADERTYPE));
     if (temp_bufferHeader == NULL) {
