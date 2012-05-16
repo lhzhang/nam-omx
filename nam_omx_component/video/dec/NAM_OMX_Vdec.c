@@ -629,7 +629,11 @@ OMX_ERRORTYPE NAM_OutputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             dataBuffer->dataValid =OMX_TRUE;
             /* dataBuffer->nFlags = dataBuffer->bufferHeader->nFlags; */
             /* dataBuffer->nTimeStamp = dataBuffer->bufferHeader->nTimeStamp; */
-            pNAMComponent->processData[OUTPUT_PORT_INDEX].dataBuffer = dataBuffer->bufferHeader->pBuffer;
+
+            /* TI OMX.NAM.* codecs assign the "hBuffer" and "pBuffer" after decoding */
+            //pNAMComponent->processData[OUTPUT_PORT_INDEX].dataBuffer = dataBuffer->bufferHeader->pBuffer;
+            pNAMComponent->processData[OUTPUT_PORT_INDEX].hBuffer = dataBuffer->bufferHeader->pPlatformPrivate = NULL;
+            pNAMComponent->processData[OUTPUT_PORT_INDEX].dataBuffer = dataBuffer->bufferHeader->pBuffer = NULL;
             pNAMComponent->processData[OUTPUT_PORT_INDEX].allocSize = dataBuffer->bufferHeader->nAllocLen;
 
             NAM_OSAL_Free(message);
@@ -677,6 +681,9 @@ static OMX_ERRORTYPE NAM_DataReset(OMX_COMPONENTTYPE *pOMXComponent, OMX_U32 por
     processData->usedDataLen   = 0;
     processData->nFlags        = 0;
     processData->timeStamp     = 0;
+
+    if(portIndex == OUTPUT_PORT_INDEX)
+        processData->hBuffer = NULL;
 
     return ret;
 }
@@ -794,6 +801,9 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
             pNAMComponent->checkTimeStamp.needSetStartTimeStamp = OMX_FALSE;
         }
 
+        /* Set dmai input buffer length */
+        Buffer_setNumBytesUsed(inputData->hBuffer, inputData->remainDataLen);
+	
         ret = OMX_TRUE;
     } else {
         ret = OMX_FALSE;
@@ -841,6 +851,8 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
             outputUseBuffer->remainDataLen += copySize;
             outputUseBuffer->nFlags = outputData->nFlags;
             outputUseBuffer->timeStamp = outputData->timeStamp;
+            outputUseBuffer->timeStamp = outputData->timeStamp;
+            outputUseBuffer->bufferHeader->pPlatformPrivate = (OMX_PTR)outputData->hBuffer;
 
             ret = OMX_TRUE;
 
