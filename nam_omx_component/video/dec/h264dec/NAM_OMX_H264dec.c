@@ -52,7 +52,8 @@
 #define FIX_CALC_DATA_LEN 1
 
 /* As 0 is not a valid buffer id in XDM 1.0, we need macros for easy access */
-#define GETID(x)  ((x) + 1)
+//#define GETID(x)  ((x) + 1)
+#define GETID(x)  ((x))
 #define GETIDX(x) ((x) - 1)
 
 //#define ADD_SPS_PPS_I_FRAME
@@ -784,10 +785,10 @@ OMX_ERRORTYPE NAM_DMAI_DecodeThread(OMX_HANDLETYPE hComponent)
         NAM_OSAL_SemaphoreWait(pH264Dec->NBDecThread.hDecFrameStart);
 
         if (pH264Dec->NBDecThread.bExitDecodeThread == OMX_FALSE) {
-            NAM_OSAL_Log(NAM_LOG_TRACE, "NAM_DMAI_DecodeThread--Decode start");
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_DMAI_DecodeThread--Decode start");
             pH264Dec->hDMAIH264Handle.returnCodec = Vdec2_process(pH264Dec->hDMAIH264Handle.hVd2,
 			pH264Dec->hDMAIH264Handle.hInBuf, pH264Dec->hDMAIH264Handle.hDstBuf);
-            NAM_OSAL_Log(NAM_LOG_TRACE, "NAM_DMAI_DecodeThread--Decode end, returnCodec: %d", pH264Dec->hDMAIH264Handle.returnCodec);
+	    NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_DMAI_DecodeThread--Decode end, returnCodec: %d", pH264Dec->hDMAIH264Handle.returnCodec);
             NAM_OSAL_SemaphorePost(pH264Dec->NBDecThread.hDecFrameEnd);
         }
     }
@@ -1095,7 +1096,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
         pH264Dec->DMAIDecInputBuffer[i].bufferSize = DSPBufferSize;
         pH264Dec->DMAIDecInputBuffer[i].dataSize = 0;
 
-        NAM_OSAL_Log(NAM_LOG_TRACE, "Succeed to create input DSP buffer[%d], size: %d", i, DSPBufferSize);
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Successfully create input DSP buffer[%d], size: %d", i, DSPBufferSize);
     }
 
     pH264Dec->bFirstFrame = OMX_TRUE;
@@ -1240,95 +1241,111 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pNAMComponent->bUseFlagEOF = OMX_TRUE;
 #endif
 
-    if ((pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EOK) &&
-        (pH264Dec->bFirstFrame == OMX_FALSE)) {
-	//OMX_S32 indexTimestamp = 0;
-        indexTimestamp = 0;
+    //if ((pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EOK) &&
+    //    (pH264Dec->bFirstFrame == OMX_FALSE)) {
+    if (pH264Dec->bFirstFrame == OMX_FALSE) {
+        if (pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EOK) {
+	    //OMX_S32 indexTimestamp = 0;
+            indexTimestamp = 0;
 
-        /* wait for dmai decode done */
-        if (pH264Dec->NBDecThread.bDecoderRun == OMX_TRUE) {
-            NAM_OSAL_SemaphoreWait(pH264Dec->NBDecThread.hDecFrameEnd);
-            pH264Dec->NBDecThread.bDecoderRun = OMX_FALSE;
-        }
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == 33 == ready to wait");
 
-        if(pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EOK) {
-            /* Get a buffer for display from the codec */
-            hOutBuf = Vdec2_getDisplayBuf(pH264Dec->hDMAIH264Handle.hVd2);
-            if(hOutBuf == NULL) {
-                bGotOutBuf = OMX_FALSE;
-                hFreeBuf = Vdec2_getFreeBuf(pH264Dec->hDMAIH264Handle.hVd2);
-                if(hFreeBuf != NULL) {
-                    Buffer_setUseMask(hFreeBuf, 0);
+            /* wait for dmai decode done */
+            if (pH264Dec->NBDecThread.bDecoderRun == OMX_TRUE) {
+                NAM_OSAL_Log(NAM_LOG_TRACE, "== == 44 == wait");
+                NAM_OSAL_SemaphoreWait(pH264Dec->NBDecThread.hDecFrameEnd);
+                pH264Dec->NBDecThread.bDecoderRun = OMX_FALSE;
+            }
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == 55 == wait end");
+
+            if(pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EOK) {
+                NAM_OSAL_Log(NAM_LOG_TRACE, "== == 66 == decode ok");
+                /* Get a buffer for display from the codec */
+                hOutBuf = Vdec2_getDisplayBuf(pH264Dec->hDMAIH264Handle.hVd2);
+                if(hOutBuf == NULL) {
+                    NAM_OSAL_Log(NAM_LOG_ERROR, "== == Unable to get display buffer");
+                    bGotOutBuf = OMX_FALSE;
+                    hFreeBuf = Vdec2_getFreeBuf(pH264Dec->hDMAIH264Handle.hVd2);
+                    if(hFreeBuf != NULL) {
+                        Buffer_setUseMask(hFreeBuf, 0);
+                    }
+                } else {
+                    NAM_OSAL_Log(NAM_LOG_ERROR, "== == Successfully get display buffer");
+                    bGotOutBuf = OMX_TRUE;
                 }
-            } else {
-                bGotOutBuf = OMX_TRUE;
-            }
-            /* Get a buffer to free from the codec */
-            hFreeBuf = Vdec2_getFreeBuf(pH264Dec->hDMAIH264Handle.hVd2);
-            while (hFreeBuf) {
-                /* The codec is no longer using the buffer */
-                Buffer_freeUseMask(hFreeBuf, OMX_DSP_CODEC_MASK);
+                /* Get a buffer to free from the codec */
                 hFreeBuf = Vdec2_getFreeBuf(pH264Dec->hDMAIH264Handle.hVd2);
+                while (hFreeBuf) {
+                    /* The codec is no longer using the buffer */
+                    Buffer_freeUseMask(hFreeBuf, OMX_DSP_CODEC_MASK);
+                    hFreeBuf = Vdec2_getFreeBuf(pH264Dec->hDMAIH264Handle.hVd2);
+                }
             }
-        }
 
-        if (bGotOutBuf == OMX_TRUE) {
-            if ((indexTimestamp = GETID(Buffer_getId(hOutBuf))) ||
-            	(((indexTimestamp < 0) || (indexTimestamp >= MAX_TIMESTAMP)))) {
-                pOutputData->timeStamp = pInputData->timeStamp;
-                pOutputData->nFlags = pInputData->nFlags;
+            if (bGotOutBuf == OMX_TRUE) {
+                if ((indexTimestamp = GETID(Buffer_getId(hOutBuf))) ||
+            	    (((indexTimestamp < 0) || (indexTimestamp >= MAX_TIMESTAMP)))) {
+                    NAM_OSAL_Log(NAM_LOG_TRACE, "== == 77 == bGotOutBuf OK, indexTimestamp ERR: %d", indexTimestamp);
+                    pOutputData->timeStamp = pInputData->timeStamp;
+                    pOutputData->nFlags = pInputData->nFlags;
+                } else {
+                    NAM_OSAL_Log(NAM_LOG_TRACE, "== == 88 == bGotOutBuf OK, indexTimestamp OK: %d", indexTimestamp);
+                    pOutputData->timeStamp = pNAMComponent->timeStamp[indexTimestamp];
+                    pOutputData->nFlags = pNAMComponent->nFlags[indexTimestamp];
+                }
+
+                outputDataValid = OMX_TRUE;
             } else {
-                pOutputData->timeStamp = pNAMComponent->timeStamp[indexTimestamp];
-                pOutputData->nFlags = pNAMComponent->nFlags[indexTimestamp];
-            }
-
-            outputDataValid = OMX_TRUE;
-        } else {
+                NAM_OSAL_Log(NAM_LOG_TRACE, "== == 99 == bGotOutBuf ERR");
                 pOutputData->timeStamp = pInputData->timeStamp;
                 pOutputData->nFlags = pInputData->nFlags;
 
                 outputDataValid = OMX_FALSE;
-        }
-        NAM_OSAL_Log(NAM_LOG_TRACE, "timestamp %lld us (%.2f nams)", pOutputData->timeStamp, pOutputData->timeStamp / 1E6);
+            }
+            NAM_OSAL_Log(NAM_LOG_TRACE, "timestamp %lld us (%.2f nams)", pOutputData->timeStamp, pOutputData->timeStamp / 1E6);
 
-        if (pOutputData->nFlags & OMX_BUFFERFLAG_EOS) 
-            outputDataValid = OMX_FALSE;
+            if (pOutputData->nFlags & OMX_BUFFERFLAG_EOS) 
+                outputDataValid = OMX_FALSE;
 
 #ifdef FULL_FRAME_SEARCH
-        if (((pInputData->nFlags & OMX_BUFFERFLAG_EOS) != OMX_BUFFERFLAG_EOS) &&
-            (pNAMComponent->bSaveFlagEOS == OMX_TRUE)) {
-            pInputData->nFlags |= OMX_BUFFERFLAG_EOS;
-            pNAMComponent->getAllDelayBuffer = OMX_TRUE;
-            ret = OMX_ErrorInputDataDecodeYet;
-        } else
+            if (((pInputData->nFlags & OMX_BUFFERFLAG_EOS) != OMX_BUFFERFLAG_EOS) &&
+                (pNAMComponent->bSaveFlagEOS == OMX_TRUE)) {
+                pInputData->nFlags |= OMX_BUFFERFLAG_EOS;
+                pNAMComponent->getAllDelayBuffer = OMX_TRUE;
+                ret = OMX_ErrorInputDataDecodeYet;
+            } else
 #endif
-        if ((pInputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS) {
-            pInputData->nFlags = (pOutputData->nFlags & (~OMX_BUFFERFLAG_EOS));
-            pNAMComponent->getAllDelayBuffer = OMX_TRUE;
-            ret = OMX_ErrorInputDataDecodeYet;
-        } else if ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS) {
-            pNAMComponent->getAllDelayBuffer = OMX_FALSE;
+            if ((pInputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS) {
+                pInputData->nFlags = (pOutputData->nFlags & (~OMX_BUFFERFLAG_EOS));
+                pNAMComponent->getAllDelayBuffer = OMX_TRUE;
+                ret = OMX_ErrorInputDataDecodeYet;
+            } else if ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS) {
+                pNAMComponent->getAllDelayBuffer = OMX_FALSE;
+                ret = OMX_ErrorNone;
+            }
+
+        } else if (pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EBITERROR ||
+                pH264Dec->hDMAIH264Handle.returnCodec == Dmai_EFIRSTFIELD) {
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == 100 == Dmai_ERR");
+            pOutputData->timeStamp = pInputData->timeStamp;
+            pOutputData->nFlags = pInputData->nFlags;
+
+            if ((pNAMComponent->bSaveFlagEOS == OMX_TRUE) ||
+                (pNAMComponent->getAllDelayBuffer == OMX_TRUE) ||
+                (pInputData->nFlags & OMX_BUFFERFLAG_EOS)) {
+                pOutputData->nFlags |= OMX_BUFFERFLAG_EOS;
+                pNAMComponent->getAllDelayBuffer = OMX_FALSE;
+            }
+            if ((pH264Dec->bFirstFrame == OMX_TRUE) &&
+                ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS)) {
+                pOutputData->nFlags = (pOutputData->nFlags & (~OMX_BUFFERFLAG_EOS));
+            }
+
+            outputDataValid = OMX_FALSE;
+
+            /* ret = OMX_ErrorUndefined; */
             ret = OMX_ErrorNone;
         }
-    } else {
-        pOutputData->timeStamp = pInputData->timeStamp;
-        pOutputData->nFlags = pInputData->nFlags;
-
-        if ((pNAMComponent->bSaveFlagEOS == OMX_TRUE) ||
-            (pNAMComponent->getAllDelayBuffer == OMX_TRUE) ||
-            (pInputData->nFlags & OMX_BUFFERFLAG_EOS)) {
-            pOutputData->nFlags |= OMX_BUFFERFLAG_EOS;
-            pNAMComponent->getAllDelayBuffer = OMX_FALSE;
-        }
-        if ((pH264Dec->bFirstFrame == OMX_TRUE) &&
-            ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) == OMX_BUFFERFLAG_EOS)) {
-            pOutputData->nFlags = (pOutputData->nFlags & (~OMX_BUFFERFLAG_EOS));
-        }
-
-        outputDataValid = OMX_FALSE;
-
-        /* ret = OMX_ErrorUndefined; */
-        ret = OMX_ErrorNone;
     }
 #if 0
     if (ret == OMX_ErrorInputDataDecodeYet) {
@@ -1346,19 +1363,20 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
 #endif
     if ((Check_H264_StartCode(pInputData->dataBuffer, pInputData->dataLen) == OMX_TRUE) &&
         ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) != OMX_BUFFERFLAG_EOS)) {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == 11 == ready to post");
         /* Get a free buffer from the BufTab to give to the codec */
         hDstBuf = BufTab_getFreeBuf(pH264Dec->hDMAIH264Handle.hOutBufTab);
         if (hDstBuf == NULL) {
-            NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to get free buffer from BufTab");
+            NAM_OSAL_Log(NAM_LOG_ERROR, "== == Failed to get free buffer from BufTab");
             BufTab_print(pH264Dec->hDMAIH264Handle.hOutBufTab);
             ret = OMX_ErrorNone;	// ??
             goto EXIT;
         } else {
-            NAM_OSAL_Log(NAM_LOG_TRACE, "Succeed to get free buffer from BufTab");
             indexTimestamp = GETID(Buffer_getId(hDstBuf));
             pH264Dec->hDMAIH264Handle.indexTimestamp = indexTimestamp;
             pNAMComponent->timeStamp[pH264Dec->hDMAIH264Handle.indexTimestamp] = pInputData->timeStamp;
             pNAMComponent->nFlags[pH264Dec->hDMAIH264Handle.indexTimestamp] = pInputData->nFlags;
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == Successfully get free buffer from BufTab, indexTimestamp: %d", indexTimestamp);
 
             /* Make sure the whole buffer is used for output */
             BufferGfx_resetDimensions(hDstBuf);
@@ -1371,6 +1389,7 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pH264Dec->DMAIDecInputBuffer[pH264Dec->indexInputBuffer].dataSize = oneFrameSize;
         pH264Dec->NBDecThread.oneFrameSize = oneFrameSize;
 
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == 22 == post");
         /* dmai decode start */
         NAM_OSAL_SemaphorePost(pH264Dec->NBDecThread.hDecFrameStart);
         pH264Dec->NBDecThread.bDecoderRun = OMX_TRUE;
@@ -1502,7 +1521,7 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         switch (pNAMOutputPort->portDefinition.format.video.eColorFormat) {
         case OMX_COLOR_FormatCbYCrY:
         {
-            NAM_OSAL_Log(NAM_LOG_TRACE, "CbYCrY out");
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == CbYCrY out");
             pOutputData->hBuffer = hOutBuf;
             pOutputData->dataBuffer = (OMX_U8 *)Buffer_getUserPtr(hOutBuf);
             pOutputData->dataLen = width * height * 2;
@@ -1510,11 +1529,12 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             break;
         default:
         {
-            NAM_OSAL_Log(NAM_LOG_TRACE, "No Format out");
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == No Format out");
 	}
             break;
         }
     } else {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == No Data out");
         pOutputData->dataLen = 0;
     }
 
