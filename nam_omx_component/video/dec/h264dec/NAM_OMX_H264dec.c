@@ -858,6 +858,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_AllocateBuffer(
         bufSize = Vdec2_getOutBufSize(hVd2);
         //bufSize = Dmai_roundUp(Vdec2_getOutBufSize(hVd), 32);
 	//bufSize = Dmai_roundUp(Vdec2_getOutBufSize(hVd2), BUFSIZEALIGN); /* BUFSIZEALIGN = 128 */
+        NAM_OSAL_Log(NAM_LOG_TRACE, "params.maxWidth: %d, params.maxHeight: %d, bufSize: %d, nSizeBytes: %d", params.maxWidth, params.maxHeight, bufSize, nSizeBytes);
 	if(nSizeBytes != bufSize) {
             ret = OMX_ErrorInsufficientResources;
             NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to create output buffers, the given[size: %d] does not meet the needs of the decoder[size: %d], Line: %d", __LINE__);
@@ -963,12 +964,12 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_ReleaseBuffer(
     OMX_BUFFERHEADERTYPE             *pBufferHeader)
 {
     OMX_ERRORTYPE         ret = OMX_ErrorNone;
-    Buffer_Handle         hBuf = (Buffer_Handle)pBufferHeader->pPlatformPrivate;
+    Buffer_Handle         hDispBuf = (Buffer_Handle)pBufferHeader->pPlatformPrivate;
 
-    if(hBuf != NULL) {
+    if(hDispBuf != NULL) {
         NAM_OSAL_Log(NAM_LOG_TRACE, "Release Buffer(set UseMark)");
         /* Mark the buffer is not owned by renderer anymore */
-        Buffer_freeUseMask(hBuf, OMX_DSP_DISPLAY_MASK);
+        Buffer_freeUseMask(hDispBuf, OMX_DSP_DISPLAY_MASK);
     }
 
 EXIT:
@@ -1080,7 +1081,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
 
     DSPBufferSize = Vdec2_getInBufSize(hVd2);
 
-    for(i = 0; i < DMAI_INPUT_BUFFER_NUM_MAX; i++) {
+    for (i = 0; i < DMAI_INPUT_BUFFER_NUM_MAX; i++) {
         /* Allocate decoder's input buffer, only one */
         hDSPBuffer = Buffer_create (DSPBufferSize, &bAttrs);
         if (hDSPBuffer == NULL) {
@@ -1347,12 +1348,13 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         ((pOutputData->nFlags & OMX_BUFFERFLAG_EOS) != OMX_BUFFERFLAG_EOS)) {
         /* Get a free buffer from the BufTab to give to the codec */
         hDstBuf = BufTab_getFreeBuf(pH264Dec->hDMAIH264Handle.hOutBufTab);
-        if (hOutBuf == NULL) {
+        if (hDstBuf == NULL) {
             NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to get free buffer from BufTab");
             BufTab_print(pH264Dec->hDMAIH264Handle.hOutBufTab);
             ret = OMX_ErrorNone;	// ??
             goto EXIT;
         } else {
+            NAM_OSAL_Log(NAM_LOG_TRACE, "Succeed to get free buffer from BufTab");
             indexTimestamp = GETID(Buffer_getId(hDstBuf));
             pH264Dec->hDMAIH264Handle.indexTimestamp = indexTimestamp;
             pNAMComponent->timeStamp[pH264Dec->hDMAIH264Handle.indexTimestamp] = pInputData->timeStamp;
