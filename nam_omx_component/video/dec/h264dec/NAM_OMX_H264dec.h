@@ -46,12 +46,15 @@ typedef struct _NAM_DMAI_H264DEC_HANDLE
     BufTab_Handle	hOutBufTab;
     OMX_BOOL		bCreateBufTabOneShot;
     OMX_BOOL		bResizeBufTab;
-    OMX_U32		DSPBufferSize;
+//    OMX_U32		DSPBufferSize;
     OMX_S32		returnCodec;
 
-    OMX_U32    indexTimestamp;
-    OMX_BOOL bConfiguredDMAI;
-    OMX_BOOL bThumbnailMode;
+    Buffer_Handle	hInBuf;
+    Buffer_Handle	hDstBuf;
+
+    OMX_U32		indexTimestamp;
+    OMX_BOOL		bConfiguredDMAI;
+    OMX_BOOL		bThumbnailMode;
 } NAM_DMAI_H264DEC_HANDLE;
 
 typedef struct _NAM_H264DEC_HANDLE
@@ -63,6 +66,7 @@ typedef struct _NAM_H264DEC_HANDLE
     /* NAM DMAI Codec specific */
     NAM_DMAI_H264DEC_HANDLE hDMAIH264Handle;
 
+    /* Is decoder Terminated? */
     OMX_BOOL bDecTerminate;
 
     /* For Non-Block mode */

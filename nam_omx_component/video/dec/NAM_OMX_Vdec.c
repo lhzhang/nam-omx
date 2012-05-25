@@ -801,8 +801,9 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
             pNAMComponent->checkTimeStamp.needSetStartTimeStamp = OMX_FALSE;
         }
 
-        /* Set dmai input buffer length */
-        Buffer_setNumBytesUsed(inputData->hBuffer, inputData->remainDataLen);
+        /* Set the input buffer length */
+        //Buffer_setNumBytesUsed(inputData->hBuffer, inputData->remainDataLen); ????
+        Buffer_setNumBytesUsed(inputData->hBuffer, inputData->dataLen);
 	
         ret = OMX_TRUE;
     } else {
