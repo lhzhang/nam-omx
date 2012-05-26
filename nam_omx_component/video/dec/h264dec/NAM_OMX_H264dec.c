@@ -1572,7 +1572,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, N
         goto EXIT;
     }
 
-    NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_DMAI_H264Dec_bufferProcess pInputData->datalen: %d", pInputData->dataLen);
+    NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_DMAI_H264Dec_bufferProcess pInputData->datalen: %d, nFlags: %X", pInputData->dataLen, pInputData->nFlags);
     
     ret = NAM_DMAI_H264_Decode(pOMXComponent, pInputData, pOutputData);
     if (ret != OMX_ErrorNone) {
