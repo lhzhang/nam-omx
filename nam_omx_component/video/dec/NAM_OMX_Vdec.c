@@ -520,6 +520,7 @@ OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             dataBuffer->nFlags = dataBuffer->bufferHeader->nFlags;
             dataBuffer->timeStamp = dataBuffer->bufferHeader->nTimeStamp;
 
+            NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_InputBufferGetQueue input buffer size! dataLen:%d", dataBuffer->dataLen);
             NAM_OSAL_Free(message);
 
             if (dataBuffer->allocSize <= dataBuffer->dataLen)
@@ -854,6 +855,7 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
             outputUseBuffer->timeStamp = outputData->timeStamp;
             outputUseBuffer->timeStamp = outputData->timeStamp;
             outputUseBuffer->bufferHeader->pPlatformPrivate = (OMX_PTR)outputData->hBuffer;
+            outputUseBuffer->bufferHeader->nFilledLen = (OMX_PTR)outputData->dataLen;
 
             ret = OMX_TRUE;
 
