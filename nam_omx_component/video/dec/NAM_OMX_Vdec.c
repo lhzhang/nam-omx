@@ -839,6 +839,10 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
     FunctionIn();
 
     if (outputUseBuffer->dataValid == OMX_TRUE) {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_Postprocess_OutputData, pNAMComponent->checkTimeStamp.needCheckStartTimeStamp: %d, pNAMComponent->checkTimeStamp.needSetStartTimeStamp: %d",
+		pNAMComponent->checkTimeStamp.needCheckStartTimeStamp,
+		pNAMComponent->checkTimeStamp.needSetStartTimeStamp);
+
         if (pNAMComponent->checkTimeStamp.needCheckStartTimeStamp == OMX_TRUE) {
             if ((pNAMComponent->checkTimeStamp.startTimeStamp == outputData->timeStamp) &&
                 (pNAMComponent->checkTimeStamp.nStartFlags == outputData->nFlags)){
@@ -859,6 +863,9 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
             goto EXIT;
         }
 
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_Postprocess_OutputData, outputData->remainDataLen: %d, outputUseBuffer->remainDataLen: %d, outputUseBuffer->allocSize: %d, outputUseBuffer->dataLen: %d",
+		outputData->remainDataLen, outputUseBuffer->remainDataLen, outputUseBuffer->allocSize, outputUseBuffer->dataLen);
+
         if (outputData->remainDataLen <= (outputUseBuffer->allocSize - outputUseBuffer->dataLen)) {
             copySize = outputData->remainDataLen;
             outputUseBuffer->dataLen += copySize;
@@ -875,8 +882,12 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
             NAM_DataReset(pOMXComponent, OUTPUT_PORT_INDEX);
 
             if ((outputUseBuffer->remainDataLen > 0) ||
-                (outputUseBuffer->nFlags & OMX_BUFFERFLAG_EOS))
+                (outputUseBuffer->nFlags & OMX_BUFFERFLAG_EOS)) {
                 NAM_OutputBufferReturn(pOMXComponent);
+                NAM_OSAL_Log(NAM_LOG_TRACE, "== == 11 NAM_Postprocess_OutputData, Something to render, nend to NAM_OutputBufferReturn()");
+            } else {
+                NAM_OSAL_Log(NAM_LOG_WARNING, "== == 22 NAM_Postprocess_OutputData, Nothing to render, don't NAM_OutputBufferReturn()");
+            }
         } else {
             NAM_OSAL_Log(NAM_LOG_ERROR, "output buffer is smaller than decoded data size Out Length");
 
