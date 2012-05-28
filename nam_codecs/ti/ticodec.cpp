@@ -23,6 +23,9 @@
 void ticodec()
 {
     Dmai_init();
+    GT_setprintf( (GT_PrintFxn)printf);
+    GT_set("*=01234567");
+    Dmai_setLogLevel(Dmai_LogLevel_Notset);
     Cpu_getDevice(NULL, NULL);
     Vdec2_create(NULL, NULL, NULL, NULL);
     Vdec2_getInBufSize(NULL);
