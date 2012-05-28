@@ -51,9 +51,8 @@
 #define TI_TRACE_FD_INVALID -1
 
 static int g_ti_trace_fd = TI_TRACE_FD_UNINIT;
-/* lf: Line feed ('\n') */
-static char msg_check_lf[LOG_BUF_SIZE];
-static int msg_len = 0;
+static char g_msg[LOG_BUF_SIZE];
+static int g_msg_len = 0;
 
 #if HAVE_ENGINE_MUTEX
 static OMX_HANDLETYPE gEngineHandleMutex = NULL;
@@ -93,11 +92,11 @@ void TIDmaiHandleDeinit() {}
 
 static inline int nam_ti_log(const char *fmt, ...)
 {
-    ssize_t ret;
+    int ret = 0;
     int saw_lf;
     int check_len;
     va_list ap;
-    char msg[LOG_BUF_SIZE];
+    char buf[LOG_BUF_SIZE];
     struct iovec vec[3];
 
     if (g_ti_trace_fd == TI_TRACE_FD_UNINIT) {
@@ -114,30 +113,31 @@ static inline int nam_ti_log(const char *fmt, ...)
 
     if(g_ti_trace_fd > 0) {
         va_start(ap, fmt);
-        vsnprintf(msg, LOG_BUF_SIZE, fmt, ap);
+        vsnprintf(buf, LOG_BUF_SIZE, fmt, ap);
         va_end(ap);
 
         do {
-            check_len = msg_len + strlen(msg) + 1;
+            check_len = g_msg_len + strlen(buf) + 1;
             if (check_len <= LOG_BUF_SIZE) {
-                saw_lf = (strchr(msg, '\n') != NULL) ? 1 : 0;
-                strncpy(msg_check_lf + msg_len, msg, strlen(msg));
-                msg_len += strlen(msg);
+                /* lf: Line feed ('\n') */
+                saw_lf = (strchr(buf, '\n') != NULL) ? 1 : 0;
+                strncpy(g_msg + g_msg_len, buf, strlen(buf));
+                g_msg_len += strlen(buf);
                 if (!saw_lf) {
                    /* skip */
-                   return 1;
+                   return 0;
                 } else {
                    /* add line feed */
-                   msg_len += 1;
-                   msg_check_lf[msg_len] = '\n';
+                   g_msg_len += 1;
+                   g_msg[g_msg_len] = '\n';
                 }
             } else {
                 /* trace is fragmented */
-                msg_len += 1;
-                msg_check_lf[msg_len] = '\n';
+                g_msg_len += 1;
+                g_msg[g_msg_len] = '\n';
             }
 #if 0
-            return __android_log_write(ANDROID_LOG_INFO, LOG_TAG, msg_check_lf);
+            return __android_log_write(ANDROID_LOG_INFO, LOG_TAG, g_msg);
 #else
             int prio = ANDROID_LOG_INFO;
             const char *tag = "NAM_DSP";
@@ -146,15 +146,15 @@ static inline int nam_ti_log(const char *fmt, ...)
             vec[0].iov_len    = 1;
             vec[1].iov_base   = (void *) tag;
             vec[1].iov_len    = strlen(tag) + 1;
-            vec[2].iov_base   = (void *) msg_check_lf;
-            vec[2].iov_len    = msg_len;
+            vec[2].iov_base   = (void *) g_msg;
+            vec[2].iov_len    = g_msg_len;
 
             do {
                 ret = writev(g_ti_trace_fd, vec, 3);
             } while (ret < 0 && errno == EINTR);
 #endif
-            // reset msg_len
-            msg_len = 0;
+            // reset g_msg_len
+            g_msg_len = 0;
          } while (check_len > LOG_BUF_SIZE);
     }
 
