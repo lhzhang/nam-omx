@@ -90,15 +90,8 @@ void TIDmaiHandleDeinit() {}
 
 #endif // HAVE_ENGINE_MUTEX
 
-static inline int nam_ti_log(const char *fmt, ...)
+static int nam_ti_log_init()
 {
-    int ret = 0;
-    int saw_lf;
-    int check_len;
-    va_list ap;
-    char buf[LOG_BUF_SIZE];
-    struct iovec vec[3];
-
     if (g_ti_trace_fd == TI_TRACE_FD_UNINIT) {
         g_ti_trace_fd = open("/dev/"LOGGER_LOG_MAIN, O_WRONLY);
         if (g_ti_trace_fd < 0) {
@@ -109,7 +102,27 @@ static inline int nam_ti_log(const char *fmt, ...)
         } else {
             NAM_OSAL_Log(NAM_LOG_TRACE, "Successfully open g_ti_trace_fd: %d", g_ti_trace_fd);
         }
+    } else {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "Open g_ti_trace_fd again, g_ti_trace_fd: %d", g_ti_trace_fd);
     }
+
+    return 0;
+}
+
+static void nam_ti_log_deinit()
+{
+    if (g_ti_trace_fd > 0)
+        close(g_ti_trace_fd);
+}
+
+static inline int nam_ti_log(const char *fmt, ...)
+{
+    int ret = 0;
+    int saw_lf;
+    int check_len;
+    va_list ap;
+    char buf[LOG_BUF_SIZE];
+    struct iovec vec[3];
 
     if(g_ti_trace_fd > 0) {
         va_start(ap, fmt);
@@ -173,7 +186,9 @@ Engine_Handle TIDmaiDetHandle()
 #endif
 
     if (!refcount) {
-        /* ...initialize codec engine runtime */
+        nam_ti_log_init();
+
+        /* initialize codec engine runtime */
         CERuntime_init();
 
         /* init trace */
@@ -234,6 +249,7 @@ void TIDMmaiFreeHandle(Engine_Handle h)
             Engine_close(global_engine_handle);
             global_engine_handle = NULL;
             CERuntime_exit ();
+            nam_ti_log_deinit();
         }
     }
 
