@@ -150,7 +150,7 @@ static inline int nam_ti_log(const char *fmt, ...)
                 g_msg[g_msg_len] = '\n';
             }
 #if 0
-            return __android_log_write(ANDROID_LOG_INFO, LOG_TAG, g_msg);
+            __android_log_write(ANDROID_LOG_INFO, LOG_TAG, g_msg);
 #else
             int prio = ANDROID_LOG_INFO;
             const char *tag = "NAM_DSP";
