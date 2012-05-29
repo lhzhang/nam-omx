@@ -124,6 +124,9 @@ static void nam_ti_log_deinit()
         close(g_ti_trace_fd);
 }
 
+/* The fxn is locked by GT in dvdsk
+ * ref: framework-components_2_25_03_07/packages/ti/sdo/utils/trace/gt.c
+ */
 static inline int nam_ti_log(const char *fmt, ...)
 {
     int ret = 0;
@@ -162,7 +165,7 @@ static inline int nam_ti_log(const char *fmt, ...)
             __android_log_write(ANDROID_LOG_INFO, LOG_TAG, g_msg);
 #else
             int prio = ANDROID_LOG_INFO;
-            const char *tag = "NAM_DSP";
+            const char *tag = "== dsp ==";
 
             vec[0].iov_base   = (unsigned char *) &prio;
             vec[0].iov_len    = 1;
@@ -204,19 +207,21 @@ Engine_Handle TIDmaiDetHandle()
         /* initialize codec engine runtime */
         CERuntime_init();
 
-        /* init trace */
-        //GT_init();
-
         /* initialize DMAI framework */
         Dmai_init();
-
-        //Dmai_setLogLevel(Dmai_LogLevel_All);
 
         /* Set printf function for GT */
         GT_setprintf( (GT_PrintFxn)nam_ti_log);
 
-	/* Enable tracing in all modules */
-	GT_set("*=01234567");
+        /* GT_set lets you configure trace at different levels for different modules */
+	//GT_set("*=01234567");
+	GT_set("*=67");
+	GT_set("ti.sdo.dmai=01234567");
+
+        //Dmai_setLogLevel(Dmai_LogLevel_All);
+        //GT_set("ti.sdo.dmai=");               // DMAI_DEBUG=0 = Dmai_LogLevel_None
+        //GT_set("ti.sdo.dmai=67");             // DMAI_DEBUG=1 = Dmai_LogLevel_ErrorsWarnings
+        //GT_set("ti.sdo.dmai=01234567");       // DMAI_DEBUG=2 = Dmai_LogLevel_All
 
         if ((global_engine_handle = Engine_open("codecServer", NULL, &ec)) == NULL) {
             NAM_OSAL_Log(NAM_LOG_ERROR, "Failed to open engine 'codecServer': %X", (unsigned) ec);
@@ -281,7 +286,6 @@ void TIDMmaiFreeHandle(Engine_Handle h)
     pthread_mutex_unlock(&gEngineHandleMutex);
 #endif
 #endif
-
 
     FunctionOut();
 }
