@@ -45,7 +45,8 @@
 #define NAM_TRACE_ON
 #include "NAM_OSAL_Log.h"
 
-#define HAVE_ENGINE_MUTEX 0
+#define HAVE_ENGINE_MUTEX 1
+#define USE_NAM_OSAL_MUTEX 0
 
 #define TI_TRACE_FD_UNINIT  -2
 #define TI_TRACE_FD_INVALID -1
@@ -55,7 +56,11 @@ static char g_msg[LOG_BUF_SIZE];
 static int g_msg_len = 0;
 
 #if HAVE_ENGINE_MUTEX
+#if USE_NAM_OSAL_MUTEX
 static OMX_HANDLETYPE gEngineHandleMutex = NULL;
+#else
+static pthread_mutex_t gEngineHandleMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 #endif
 
 static Engine_Handle global_engine_handle = NULL;
@@ -66,7 +71,9 @@ void TIDmaiHandleInit()
 {
     FunctionIn();
 
+#if USE_NAM_OSAL_MUTEX
     NAM_OSAL_MutexCreate(&gEngineHandleMutex);
+#endif
     global_engine_handle = NULL;
     refcount = 0;
 
@@ -77,8 +84,10 @@ void TIDmaiHandleDeinit()
 {
     FunctionIn();
 
+#if USE_NAM_OSAL_MUTEX
     NAM_OSAL_MutexTerminate(gEngineHandleMutex);
     gEngineHandleMutex = NULL;
+#endif
 
     FunctionOut();
 }
@@ -182,7 +191,11 @@ Engine_Handle TIDmaiDetHandle()
     FunctionIn();
 
 #if HAVE_ENGINE_MUTEX
+#if USE_NAM_OSAL_MUTEX
     NAM_OSAL_Mutexlock(gEngineHandleMutex);
+#else
+    pthread_mutex_lock(&gEngineHandleMutex);
+#endif
 #endif
 
     if (!refcount) {
@@ -217,7 +230,11 @@ Engine_Handle TIDmaiDetHandle()
     refcount++;
 
 #if HAVE_ENGINE_MUTEX
+#if USE_NAM_OSAL_MUTEX
     NAM_OSAL_MutexUnlock(gEngineHandleMutex);
+#else
+    pthread_mutex_unlock(&gEngineHandleMutex);
+#endif
 #endif
 
 EXIT:
@@ -238,7 +255,11 @@ void TIDMmaiFreeHandle(Engine_Handle h)
     FunctionIn();
 
 #if HAVE_ENGINE_MUTEX
+#if USE_NAM_OSAL_MUTEX
     NAM_OSAL_Mutexlock(gEngineHandleMutex);
+#else
+    pthread_mutex_lock(&gEngineHandleMutex);
+#endif
 #endif
 
     NAM_OSAL_Log(NAM_LOG_TRACE, "TIDMmaiFreeHandle refcount: %d", refcount);
@@ -254,8 +275,13 @@ void TIDMmaiFreeHandle(Engine_Handle h)
     }
 
 #if HAVE_ENGINE_MUTEX
+#if USE_NAM_OSAL_MUTEX
     NAM_OSAL_MutexUnlock(gEngineHandleMutex);
+#else
+    pthread_mutex_unlock(&gEngineHandleMutex);
 #endif
+#endif
+
 
     FunctionOut();
 }
