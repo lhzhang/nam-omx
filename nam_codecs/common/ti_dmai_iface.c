@@ -165,7 +165,7 @@ static inline int nam_ti_log(const char *fmt, ...)
             __android_log_write(ANDROID_LOG_INFO, LOG_TAG, g_msg);
 #else
             int prio = ANDROID_LOG_INFO;
-            const char *tag = "== dsp ==";
+            const char *tag = "== == dsp";
 
             vec[0].iov_base   = (unsigned char *) &prio;
             vec[0].iov_len    = 1;
