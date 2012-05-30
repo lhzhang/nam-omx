@@ -523,18 +523,18 @@ OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_InputBufferGetQueue input buffer size dataLen: %d, nFlags: 0x%X", dataBuffer->dataLen, dataBuffer->nFlags);
             NAM_OSAL_Free(message);
 
+
+            /* FIXME */
+            if (dataBuffer->nFlags == 0x90 && (dataBuffer->dataLen == 27 || dataBuffer->dataLen == 8)) {
+                NAM_OSAL_Log(NAM_LOG_WARNING, "== == nend to drop, dataLen: %d", dataBuffer->dataLen);
+                dataBuffer->dataValid = OMX_FALSE;
+            }
+
             if (dataBuffer->allocSize <= dataBuffer->dataLen)
                 NAM_OSAL_Log(NAM_LOG_WARNING, "Input Buffer Full, Check input buffer size! allocSize:%d, dataLen:%d", dataBuffer->allocSize, dataBuffer->dataLen);
         }
         NAM_OSAL_MutexUnlock(inputUseBuffer->bufferMutex);
         ret = OMX_ErrorNone;
-
-        /* FIXME */
-        if (dataBuffer->nFlags == 0x90 && (dataBuffer->dataLen == 27 || dataBuffer->dataLen == 8)) {
-            NAM_OSAL_Log(NAM_LOG_WARNING, "== == nend to drop, dataLen: %d", dataBuffer->dataLen);
-            dataBuffer->dataValid = OMX_FALSE;
-        }
-
     }
 EXIT:
     FunctionOut();
@@ -720,6 +720,10 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
         } else {
             previousFrameEOF = OMX_FALSE;
         }
+
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == pNAMComponent->bUseFlagEOF: %d", pNAMComponent->bUseFlagEOF);
+        pNAMComponent->bUseFlagEOF = OMX_TRUE;
+
         if ((pNAMComponent->bUseFlagEOF == OMX_TRUE) &&
            !(inputUseBuffer->nFlags & OMX_BUFFERFLAG_CODECCONFIG)) {
             flagEOF = OMX_TRUE;
@@ -731,10 +735,12 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
 
         if (flagEOF == OMX_TRUE) {
             copySize = checkedSize;
-            NAM_OSAL_Log(NAM_LOG_TRACE, "nam_checkInputFrame : OMX_TRUE");
+            //NAM_OSAL_Log(NAM_LOG_TRACE, "nam_checkInputFrame : OMX_TRUE");
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == nam_checkInputFrame : OMX_TRUE");
         } else {
             copySize = checkInputStreamLen;
-            NAM_OSAL_Log(NAM_LOG_TRACE, "nam_checkInputFrame : OMX_FALSE");
+            //NAM_OSAL_Log(NAM_LOG_TRACE, "nam_checkInputFrame : OMX_FALSE");
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == nam_checkInputFrame : OMX_FALSE");
         }
 
         if (inputUseBuffer->nFlags & OMX_BUFFERFLAG_EOS)
@@ -802,6 +808,7 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
     }
 
     if (flagEOF == OMX_TRUE) {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_Preprocessor_InputData flagEOF == OMX_TRUE, ret = OMX_TRUE");
         if (pNAMComponent->checkTimeStamp.needSetStartTimeStamp == OMX_TRUE) {
             pNAMComponent->checkTimeStamp.needCheckStartTimeStamp = OMX_TRUE;
             pNAMComponent->checkTimeStamp.startTimeStamp = inputData->timeStamp;
@@ -815,6 +822,7 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
 	
         ret = OMX_TRUE;
     } else {
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_Preprocessor_InputData flagEOF == OMX_FALSE, ret = OMX_FALSE");
         ret = OMX_FALSE;
         /* FIXME */
         if (inputUseBuffer->nFlags == 0x90 && (inputUseBuffer->dataLen == 27 || inputUseBuffer->dataLen == 8)) {
@@ -962,6 +970,8 @@ OMX_ERRORTYPE NAM_OMX_BufferProcess(OMX_HANDLETYPE hComponent)
                 NAM_OSAL_MutexUnlock(outputUseBuffer->bufferMutex);
             }
 
+            NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_OMX_BufferProcess, pNAMComponent->remainOutputData: %d, pNAMComponent->reInputData: %d", 
+			pNAMComponent->remainOutputData, pNAMComponent->reInputData);
             if (pNAMComponent->remainOutputData == OMX_FALSE) {
                 if (pNAMComponent->reInputData == OMX_FALSE) {
                     NAM_OSAL_MutexLock(inputUseBuffer->bufferMutex);
