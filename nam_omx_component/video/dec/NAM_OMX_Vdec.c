@@ -43,6 +43,9 @@
 
 #include "NAM_OSAL_Log.h"
 
+#define DISABLE_MATA_DECODE 0
+#define ENABLE_CHECK_CODECONFIG 0
+
 inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
 {
     NAM_OMX_BASECOMPONENT *pNAMComponent = (NAM_OMX_BASECOMPONENT *)pOMXComponent->pComponentPrivate;
@@ -523,12 +526,13 @@ OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_InputBufferGetQueue input buffer size dataLen: %d, nFlags: 0x%X", dataBuffer->dataLen, dataBuffer->nFlags);
             NAM_OSAL_Free(message);
 
-
+#if DISABLE_MATA_DECODE
             /* FIXME */
             if (dataBuffer->nFlags == 0x90 && (dataBuffer->dataLen == 27 || dataBuffer->dataLen == 8)) {
                 NAM_OSAL_Log(NAM_LOG_WARNING, "== == nend to drop, dataLen: %d", dataBuffer->dataLen);
                 dataBuffer->dataValid = OMX_FALSE;
             }
+#endif
 
             if (dataBuffer->allocSize <= dataBuffer->dataLen)
                 NAM_OSAL_Log(NAM_LOG_WARNING, "Input Buffer Full, Check input buffer size! allocSize:%d, dataLen:%d", dataBuffer->allocSize, dataBuffer->dataLen);
@@ -724,8 +728,12 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
         NAM_OSAL_Log(NAM_LOG_TRACE, "== == pNAMComponent->bUseFlagEOF: %d", pNAMComponent->bUseFlagEOF);
         pNAMComponent->bUseFlagEOF = OMX_TRUE;
 
+#if ENABLE_CHECK_CODECONFIG
         if ((pNAMComponent->bUseFlagEOF == OMX_TRUE) &&
            !(inputUseBuffer->nFlags & OMX_BUFFERFLAG_CODECCONFIG)) {
+#else
+        if (pNAMComponent->bUseFlagEOF == OMX_TRUE) {
+#endif
             flagEOF = OMX_TRUE;
             checkedSize = checkInputStreamLen;
         } else {
@@ -824,11 +832,14 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
     } else {
         NAM_OSAL_Log(NAM_LOG_TRACE, "== == NAM_Preprocessor_InputData flagEOF == OMX_FALSE, ret = OMX_FALSE");
         ret = OMX_FALSE;
+
+#if DISABLE_MATA_DECODE
         /* FIXME */
         if (inputUseBuffer->nFlags == 0x90 && (inputUseBuffer->dataLen == 27 || inputUseBuffer->dataLen == 8)) {
             NAM_OSAL_Log(NAM_LOG_ERROR, "== == drop input data, len: %d", inputUseBuffer->dataLen);
             NAM_InputBufferReturn(pOMXComponent);
         }
+#endif
     }
 
     FunctionOut();
