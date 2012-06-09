@@ -31,6 +31,7 @@ void ticodec()
     Vdec2_getInBufSize(NULL);
     Buffer_create(0, NULL);
     BufTab_create(0, 0, NULL);
+    BufTab_print2(NULL);
     Buffer_getUserPtr(NULL);
     Vdec2_getOutBufSize(NULL);
     BufferGfx_calcLineLength(0, (ColorSpace_Type)0);
