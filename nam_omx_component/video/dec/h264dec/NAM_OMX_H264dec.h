@@ -35,6 +35,9 @@
 
 #define DMAI_H264_DECODER_NAME "h264dec"
 
+#define BBXM_DSP_SAVE_YUV_TO_FILE 1
+#define NB_SAVE_YUV 3
+
 typedef struct _NAM_DMAI_H264DEC_HANDLE
 {
     OMX_STRING		decoderName;
@@ -74,6 +77,12 @@ typedef struct _NAM_H264DEC_HANDLE
     OMX_BOOL bFirstFrame;
     DMAI_DEC_INPUT_BUFFER DMAIDecInputBuffer[DMAI_INPUT_BUFFER_NUM_MAX];
     OMX_U32  indexInputBuffer;
+
+#if BBXM_DSP_SAVE_YUV_TO_FILE
+    FILE *yuv_fp;
+    OMX_BOOL bSaveYUV;
+    OMX_U32 saveYUVCnt;
+#endif
 } NAM_H264DEC_HANDLE;
 
 #ifdef __cplusplus
