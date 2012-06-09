@@ -1589,7 +1589,8 @@ FILL:
         case OMX_COLOR_FormatCbYCrY:
         {
             //NAM_OSAL_Log(NAM_LOG_TRACE, "== == CbYCrY out");
-            NAM_OSAL_Log(NAM_LOG_TRACE, "== == CbYCrY out, hOutBuf id: %d, size: %d", Buffer_getId(hOutBuf), Buffer_getNumBytesUsed(hOutBuf));
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == CbYCrY out, hOutBuf id: %d, ptr: 0x%x, size: %d",
+                Buffer_getId(hOutBuf), Buffer_getUserPtr(hOutBuf), Buffer_getNumBytesUsed(hOutBuf));
             pOutputData->hBuffer = hOutBuf;
             pOutputData->dataBuffer = (OMX_U8 *)Buffer_getUserPtr(hOutBuf);
             //pOutputData->dataLen = width * height * 2;

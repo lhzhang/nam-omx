@@ -893,6 +893,7 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
             outputUseBuffer->timeStamp = outputData->timeStamp;
             outputUseBuffer->timeStamp = outputData->timeStamp;
             outputUseBuffer->bufferHeader->pPlatformPrivate = (OMX_PTR)outputData->hBuffer;
+            outputUseBuffer->bufferHeader->pBuffer = (OMX_PTR)outputData->dataBuffer;
             outputUseBuffer->bufferHeader->nFilledLen = (OMX_PTR)outputData->dataLen;
 
             ret = OMX_TRUE;
