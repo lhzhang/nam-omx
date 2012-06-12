@@ -728,7 +728,7 @@ OMX_BOOL NAM_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent)
         }
 
         NAM_OSAL_Log(NAM_LOG_TRACE, "== == pNAMComponent->bUseFlagEOF: %d", pNAMComponent->bUseFlagEOF);
-        pNAMComponent->bUseFlagEOF = OMX_TRUE;
+        //pNAMComponent->bUseFlagEOF = OMX_TRUE;
 
 #if ENABLE_CHECK_CODECONFIG
         if ((pNAMComponent->bUseFlagEOF == OMX_TRUE) &&
