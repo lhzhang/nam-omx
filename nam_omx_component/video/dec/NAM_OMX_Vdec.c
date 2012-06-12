@@ -648,6 +648,8 @@ OMX_ERRORTYPE NAM_OutputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             pNAMComponent->processData[OUTPUT_PORT_INDEX].dataBuffer = dataBuffer->bufferHeader->pBuffer = NULL;
             pNAMComponent->processData[OUTPUT_PORT_INDEX].allocSize = dataBuffer->bufferHeader->nAllocLen;
 
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ NAM_OutputBufferGetQueue ok");
+
             NAM_OSAL_Free(message);
         }
         NAM_OSAL_MutexUnlock(outputUseBuffer->bufferMutex);
@@ -1007,6 +1009,12 @@ OMX_ERRORTYPE NAM_OMX_BufferProcess(OMX_HANDLETYPE hComponent)
                     pNAMComponent->reInputData = OMX_TRUE;
                 else
                     pNAMComponent->reInputData = OMX_FALSE;
+
+                if (ret == OMX_ErrorNoFreeBuffer)
+                    pNAMComponent->reInputData = OMX_TRUE;
+                else
+                    pNAMComponent->reInputData = OMX_FALSE;
+
             }
 
             NAM_OSAL_MutexLock(outputUseBuffer->bufferMutex);

@@ -88,7 +88,8 @@ typedef enum _NAM_OMX_ERRORTYPE
     OMX_ErrorNoEOF = 0x90000001,
     OMX_ErrorInputDataDecodeYet,
     OMX_ErrorInputDataEncodeYet,
-    OMX_ErrorDMAIInit
+    OMX_ErrorDMAIInit,
+    OMX_ErrorNoFreeBuffer
 } NAM_OMX_ERRORTYPE;
 
 typedef enum _NAM_OMX_COMMANDTYPE

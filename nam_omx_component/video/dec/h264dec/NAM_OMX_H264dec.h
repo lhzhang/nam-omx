@@ -36,7 +36,10 @@
 #define DMAI_H264_DECODER_NAME "h264dec"
 
 #define BBXM_DSP_SAVE_YUV_TO_FILE 1
-#define NB_SAVE_YUV 3
+
+#define SAVE_CNT_START 1000
+#define SAVE_CNT 25
+#define NB_SAVE_YUV (SAVE_CNT_START + SAVE_CNT)
 
 typedef struct _NAM_DMAI_H264DEC_HANDLE
 {

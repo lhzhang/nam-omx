@@ -970,11 +970,11 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_ReleaseBuffer(
     Buffer_Handle         hDispBuf = (Buffer_Handle)pBufferHeader->pPlatformPrivate;
 
     if(hDispBuf != NULL) {
-        NAM_OSAL_Log(NAM_LOG_TRACE, "== == Release Buffer(set UseMark)");
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == ############################### Release Buffer(set UseMark): ptr: 0x%x", Buffer_getUserPtr(hDispBuf));
         /* Mark the buffer is not owned by renderer anymore */
         Buffer_freeUseMask(hDispBuf, OMX_DSP_DISPLAY_MASK);
     } else {
-        NAM_OSAL_Log(NAM_LOG_TRACE, "== == Release Buffer(do Nothing)");
+        NAM_OSAL_Log(NAM_LOG_TRACE, "== == ############################### Release Buffer(do Nothing)");
     }
 
 EXIT:
@@ -1137,6 +1137,7 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_Init(OMX_COMPONENTTYPE *pOMXComponent)
         && (!strcmp(value, "1") || !strcasecmp(value, "true"))) {
         pH264Dec->bSaveYUV = OMX_TRUE;
         NAM_OSAL_Log(NAM_LOG_TRACE, "enable saveh264yuv");
+        pH264Dec->saveYUVCnt = 0;
     }
 
     if(pH264Dec->bSaveYUV == OMX_TRUE)
@@ -1429,6 +1430,11 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
                 NAM_OSAL_Log(NAM_LOG_ERROR, "== == Failed to get free buffer from BufTab");
                 BufTab_print2(pH264Dec->hDMAIH264Handle.hOutBufTab);
                 ret = OMX_ErrorNone;	// ??
+#if 1
+                //ret = OMX_ErrorInputDataDecodeYet;
+                ret = OMX_ErrorNoFreeBuffer;
+                pH264Dec->bFirstFrame = OMX_TRUE;
+#endif
                 //goto EXIT;
                 goto FILL;
             } else {
@@ -1472,7 +1478,8 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
             ret = OMX_ErrorInputDataDecodeYet;
         }
 #endif
-        pH264Dec->bFirstFrame = OMX_FALSE;
+        if (pH264Dec->bFirstFrame = OMX_TRUE)
+            pH264Dec->bFirstFrame = OMX_FALSE;
     }
 
 #if 0
@@ -1596,9 +1603,11 @@ FILL:
             //pOutputData->dataLen = width * height * 2;
             pOutputData->dataLen = Buffer_getNumBytesUsed(hOutBuf);
 #if BBXM_DSP_SAVE_YUV_TO_FILE
+        pH264Dec->saveYUVCnt++;
         if(pH264Dec->bSaveYUV == OMX_TRUE) {
             if(pH264Dec->yuv_fp) {
-                fwrite(pOutputData->dataBuffer, pOutputData->dataLen, 1, pH264Dec->yuv_fp);
+                if (pH264Dec->saveYUVCnt >= SAVE_CNT_START)
+                    fwrite(pOutputData->dataBuffer, pOutputData->dataLen, 1, pH264Dec->yuv_fp);
                 if(pH264Dec->saveYUVCnt++ == NB_SAVE_YUV) {
                     fsync(fileno(pH264Dec->yuv_fp));
                     fclose(pH264Dec->yuv_fp);
@@ -1653,6 +1662,9 @@ OMX_ERRORTYPE NAM_DMAI_H264Dec_bufferProcess(OMX_COMPONENTTYPE *pOMXComponent, N
     ret = NAM_DMAI_H264_Decode(pOMXComponent, pInputData, pOutputData);
     if (ret != OMX_ErrorNone) {
         if (ret == OMX_ErrorInputDataDecodeYet) {
+            pOutputData->usedDataLen = 0;
+            pOutputData->remainDataLen = pOutputData->dataLen;
+        } else if (ret == OMX_ErrorNoFreeBuffer) {
             pOutputData->usedDataLen = 0;
             pOutputData->remainDataLen = pOutputData->dataLen;
         } else {
