@@ -44,7 +44,12 @@
 #include "NAM_OSAL_Log.h"
 
 #define DISABLE_MATA_DECODE 0
-#define ENABLE_CHECK_CODECONFIG 0
+#define ENABLE_CHECK_CODECONFIG 1
+#define DEBUG_FRAME_CNT 1
+
+#if DEBUG_FRAME_CNT
+static int frame_cnt;
+#endif
 
 inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
 {
@@ -906,7 +911,7 @@ OMX_BOOL NAM_Postprocess_OutputData(OMX_COMPONENTTYPE *pOMXComponent)
             if ((outputUseBuffer->remainDataLen > 0) ||
                 (outputUseBuffer->nFlags & OMX_BUFFERFLAG_EOS)) {
                 NAM_OutputBufferReturn(pOMXComponent);
-                NAM_OSAL_Log(NAM_LOG_TRACE, "== == 11 NAM_Postprocess_OutputData, Something to render, nend to NAM_OutputBufferReturn()");
+                NAM_OSAL_Log(NAM_LOG_TRACE, "== == 11 NAM_Postprocess_OutputData, Something to render, nend to NAM_OutputBufferReturn(), frame count: %d", ++frame_cnt);
             } else {
                 NAM_OSAL_Log(NAM_LOG_WARNING, "== == 22 NAM_Postprocess_OutputData, Nothing to render, don't NAM_OutputBufferReturn()");
             }
@@ -1439,6 +1444,9 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentInit(OMX_IN OMX_HANDLETYPE hComponent)
     pNAMComponent->nam_InputBufferReturn    = &NAM_InputBufferReturn;
     pNAMComponent->nam_OutputBufferReturn   = &NAM_OutputBufferReturn;
 
+#if DEBUG_FRAME_CNT
+    frame_cnt = 0;
+#endif
 EXIT:
     FunctionOut();
 
@@ -1480,6 +1488,10 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentDeinit(OMX_IN OMX_HANDLETYPE hComponen
     ret = NAM_OMX_Port_Destructor(pOMXComponent);
 
     ret = NAM_OMX_BaseComponent_Destructor(hComponent);
+
+#if DEBUG_FRAME_CNT
+    frame_cnt = 0;
+#endif
 
 EXIT:
     FunctionOut();
