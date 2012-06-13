@@ -49,6 +49,7 @@
 
 #if DEBUG_FRAME_CNT
 static int frame_cnt;
+static int pkt_cnt;
 #endif
 
 inline void NAM_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
@@ -528,6 +529,9 @@ OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             dataBuffer->nFlags = dataBuffer->bufferHeader->nFlags;
             dataBuffer->timeStamp = dataBuffer->bufferHeader->nTimeStamp;
 
+#if DEBUG_FRAME_CNT
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == ====================================  NAM_Preprocessor_InputData  len: %d, pkt count: %d", dataBuffer->dataLen, ++pkt_cnt);
+#endif
             NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_InputBufferGetQueue input buffer size dataLen: %d, nFlags: 0x%X", dataBuffer->dataLen, dataBuffer->nFlags);
             NAM_OSAL_Free(message);
 
@@ -576,6 +580,7 @@ static OMX_ERRORTYPE NAM_OutputBufferReturn(OMX_COMPONENTTYPE *pOMXComponent)
         }
 
         if (bufferHeader->nFlags & OMX_BUFFERFLAG_EOS) {
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ NAM_Postprocess_OutputData EventHandler EOS");
             pNAMComponent->pCallbacks->EventHandler(pOMXComponent,
                             pNAMComponent->callbackData,
                             OMX_EventBufferFlag,
@@ -1446,6 +1451,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentInit(OMX_IN OMX_HANDLETYPE hComponent)
 
 #if DEBUG_FRAME_CNT
     frame_cnt = 0;
+    pkt_cnt = 0;
 #endif
 EXIT:
     FunctionOut();
@@ -1491,6 +1497,7 @@ OMX_ERRORTYPE NAM_OMX_VideoDecodeComponentDeinit(OMX_IN OMX_HANDLETYPE hComponen
 
 #if DEBUG_FRAME_CNT
     frame_cnt = 0;
+    pkt_cnt = 0;
 #endif
 
 EXIT:
