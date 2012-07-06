@@ -530,7 +530,8 @@ OMX_ERRORTYPE NAM_InputBufferGetQueue(NAM_OMX_BASECOMPONENT *pNAMComponent)
             dataBuffer->timeStamp = dataBuffer->bufferHeader->nTimeStamp;
 
 #if DEBUG_FRAME_CNT
-            NAM_OSAL_Log(NAM_LOG_TRACE, "== == ====================================  NAM_Preprocessor_InputData  len: %d, pkt count: %d", dataBuffer->dataLen, ++pkt_cnt);
+            NAM_OSAL_Log(NAM_LOG_TRACE, "== == ====================================  NAM_Preprocessor_InputData  len: %d  timestamp: %lld us(%.2f secs), pkt count: %d",
+			dataBuffer->dataLen, dataBuffer->timeStamp, dataBuffer->timeStamp/1E6,  ++pkt_cnt);
 #endif
             NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_InputBufferGetQueue input buffer size dataLen: %d, nFlags: 0x%X", dataBuffer->dataLen, dataBuffer->nFlags);
             NAM_OSAL_Free(message);
@@ -997,7 +998,8 @@ OMX_ERRORTYPE NAM_OMX_BufferProcess(OMX_HANDLETYPE hComponent)
             NAM_OSAL_Log(NAM_LOG_WARNING, "== == NAM_OMX_BufferProcess, pNAMComponent->remainOutputData: %d, pNAMComponent->reInputData: %d", 
 			pNAMComponent->remainOutputData, pNAMComponent->reInputData);
             if (pNAMComponent->remainOutputData == OMX_FALSE) {
-                if (pNAMComponent->reInputData == OMX_FALSE) {
+                if ((pNAMComponent->reInputData == OMX_FALSE) &&
+                    (pNAMComponent->getAllDelayBuffer == OMX_FALSE)) {
                     NAM_OSAL_MutexLock(inputUseBuffer->bufferMutex);
                     if ((NAM_Preprocessor_InputData(pOMXComponent) == OMX_FALSE) &&
                         (!CHECK_PORT_BEING_FLUSHED(namInputPort))) {

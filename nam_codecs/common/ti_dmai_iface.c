@@ -214,9 +214,12 @@ Engine_Handle TIDmaiDetHandle()
         GT_setprintf( (GT_PrintFxn)nam_ti_log);
 
         /* GT_set lets you configure trace at different levels for different modules */
-	//GT_set("*=01234567");
+#if 0
+	GT_set("*=01234567");
+#else
 	GT_set("*=67");
 	GT_set("ti.sdo.dmai=01234567");
+#endif
 
         //Dmai_setLogLevel(Dmai_LogLevel_All);
         //GT_set("ti.sdo.dmai=");               // DMAI_DEBUG=0 = Dmai_LogLevel_None
