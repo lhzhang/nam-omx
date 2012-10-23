@@ -2,7 +2,7 @@
 PLATFORM=dm3730
 
 # The installation directory of the SDK.
-DVSDK_INSTALL_DIR=/home/michael/lp/bbxm/rowboat/gb/gb-dsp/android/external/ti-dsp/ti-dvsdk_dm3730-evm_4_01_00_09
+DVSDK_INSTALL_DIR=/home/michael/dev/bbxm/rowboat/gb/gb-dsp/android/external/ti-dsp/ti-dvsdk_dm3730-evm_4_01_00_09
 
 # For backwards compatibility
 DVEVM_INSTALL_DIR=$(DVSDK_INSTALL_DIR)
