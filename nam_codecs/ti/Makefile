@@ -14,7 +14,7 @@
 
 OMAPES=5.x
 
-ANDROID_ROOT_DIR := /home/michael/lp/bbxm/rowboat/gb/gb-dsp/android
+ANDROID_ROOT_DIR := /home/michael/dev/bbxm/rowboat/gb/gb-dsp/android
 
 ifeq ($(OMAPES), 5.x)
 DVSDK_INSTALL_DIR := $(ANDROID_ROOT_DIR)/external/ti-dsp/ti-dvsdk_dm3730-evm_4_01_00_09
