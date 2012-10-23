@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/michael/lp/bbxm/rowboat/gb/gb-dsp/android
+cd /home/michael/dev/bbxm/rowboat/gb/gb-dsp/android
 source ../androidrc
 source build/envsetup.sh 
 echo "ticodec cleanup start ..."
