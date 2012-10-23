@@ -1283,13 +1283,13 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
                 bGotOutBuf = OMX_FALSE;
                 hFreeBuf = Vdec2_getFreeBuf(pH264Dec->hDMAIH264Handle.hVd2);
                 if(hFreeBuf != NULL) {
-                    NAM_OSAL_Log(NAM_LOG_ERROR, "== == Unable to get display buffer ================== ++++++++++++++++ NNNNNN disp_id: %d, tag: %d", 
-                        Buffer_getId(hFreeBuf), Buffer_getTag(hFreeBuf));
+                    NAM_OSAL_Log(NAM_LOG_ERROR, "== == Unable to get display buffer ================== ++++++++++++++++ NNNNNN disp_id: %d, tag: %d, frametype: %d", 
+                        Buffer_getId(hFreeBuf), Buffer_getTag(hFreeBuf), BufferGfx_getFrameType(hFreeBuf));
                     Buffer_setUseMask(hFreeBuf, 0);
                 }
             } else {
-                NAM_OSAL_Log(NAM_LOG_ERROR, "== == Successfully get display buffer ================== ++++++++++++++++ YYYYYY disp_id: %d, tag: %d",
-                    Buffer_getId(hOutBuf), Buffer_getTag(hOutBuf));
+                NAM_OSAL_Log(NAM_LOG_ERROR, "== == Successfully get display buffer ================== ++++++++++++++++ YYYYYY disp_id: %d, tag: %d, frametype: %d",
+                    Buffer_getId(hOutBuf), Buffer_getTag(hOutBuf), BufferGfx_getFrameType(hOutBuf));
                 bGotOutBuf = OMX_TRUE;
             }
 
@@ -1464,7 +1464,8 @@ OMX_ERRORTYPE NAM_DMAI_H264_Decode(OMX_COMPONENTTYPE *pOMXComponent, NAM_OMX_DAT
         pNAMComponent->nFlags[pH264Dec->hDMAIH264Handle.indexTimestamp] = pInputData->nFlags;
 
         /* set timestamp tag to decoder */
-        Buffer_setTag(pH264Dec->hDMAIH264Handle.hDstBuf, pH264Dec->hDMAIH264Handle.indexTimestamp);
+        //Buffer_setTag(pH264Dec->hDMAIH264Handle.hDstBuf, pH264Dec->hDMAIH264Handle.indexTimestamp);
+        Buffer_setTag(pH264Dec->hDMAIH264Handle.hInBuf, pH264Dec->hDMAIH264Handle.indexTimestamp);
         pH264Dec->hDMAIH264Handle.indexTimestamp++;
         pH264Dec->hDMAIH264Handle.indexTimestamp %= MAX_TIMESTAMP;
 
